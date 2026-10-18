@@ -1,0 +1,177 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+	--font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+	--font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+	--font-brand: 'Bungee', ui-sans-serif, sans-serif;
+}
+
+/* Semantic colours switch with the theme; utilities such as `bg-surface` or `text-accent/80` read them at runtime. */
+@theme inline {
+	--color-bg: var(--bg);
+	--color-bg-subtle: var(--bg-subtle);
+	--color-surface: var(--surface);
+	--color-surface-2: var(--surface-2);
+	--color-line: var(--line);
+	--color-line-strong: var(--line-strong);
+	--color-fg: var(--fg);
+	--color-fg-muted: var(--fg-muted);
+	--color-fg-subtle: var(--fg-subtle);
+	--color-dinoco: var(--dinoco);
+	--color-rekka: var(--rekka);
+	--color-accent: var(--accent);
+	--color-accent-fg: var(--accent-fg);
+	--color-code: var(--code-bg);
+}
+
+:root {
+	--bg: #f8fafd;
+	--bg-subtle: #f1f4f9;
+	--surface: #ffffff;
+	--surface-2: #f3f6fb;
+	--line: #e1e7f0;
+	--line-strong: #cbd4e1;
+	--fg: #0b1221;
+	--fg-muted: #46516a;
+	--fg-subtle: #6f7b92;
+	--dinoco: #0377a8;
+	--rekka: #c93c17;
+	--code-bg: #f6f8fc;
+	--grid-line: rgba(11, 18, 33, 0.06);
+	--dinoco-gradient: linear-gradient(135deg, #3fd2f7 0%, #0786c9 100%);
+	--rekka-gradient: linear-gradient(135deg, #ff9152 0%, #e5341d 100%);
+	--accent: var(--dinoco);
+	--accent-fg: #ffffff;
+	color-scheme: light;
+}
+
+.dark {
+	--bg: #070a12;
+	--bg-subtle: #0a0e18;
+	--surface: #0d1320;
+	--surface-2: #121a2a;
+	--line: #1b2435;
+	--line-strong: #2a3549;
+	--fg: #e8edf6;
+	--fg-muted: #a0abc0;
+	--fg-subtle: #6e7a90;
+	--dinoco: #4fd8f7;
+	--rekka: #ff7a4d;
+	--code-bg: #0a101b;
+	--grid-line: rgba(160, 185, 230, 0.06);
+	--accent-fg: #061018;
+	color-scheme: dark;
+}
+
+[data-product='rekka'] {
+	--accent: var(--rekka);
+}
+
+@layer base {
+	html {
+		scroll-padding-top: 7rem;
+	}
+
+	body {
+		@apply bg-bg font-sans text-fg antialiased;
+		font-feature-settings: 'ss01', 'cv11';
+	}
+
+	::selection {
+		background: color-mix(in oklab, var(--accent) 28%, transparent);
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+		border-radius: 6px;
+	}
+}
+
+/* Faint square grid that fades out from the top of the page. */
+.hero-grid {
+	background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+	background-size: 56px 56px;
+	mask-image: radial-gradient(ellipse 75% 65% at 50% 0%, #000 35%, transparent 78%);
+}
+
+/* Where the two products meet: cyan from the left, ember from the right. */
+.meeting-glow {
+	background:
+		radial-gradient(40% 70% at 22% 55%, color-mix(in oklab, var(--dinoco) 38%, transparent), transparent 70%),
+		radial-gradient(40% 70% at 78% 55%, color-mix(in oklab, var(--rekka) 34%, transparent), transparent 70%);
+	filter: blur(48px);
+}
+
+.meeting-border {
+	background: linear-gradient(110deg, color-mix(in oklab, var(--dinoco) 70%, transparent), var(--line) 38%, var(--line) 62%, color-mix(in oklab, var(--rekka) 70%, transparent));
+}
+
+.mark-dinoco {
+	background: var(--dinoco-gradient);
+}
+
+.mark-rekka {
+	background: var(--rekka-gradient);
+}
+
+/* One page-load sequence on the home hero; nothing else on the site moves on its own. */
+@keyframes rise-in {
+	from {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.rise-in {
+	animation: rise-in 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+	animation-delay: var(--rise-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	::before,
+	::after {
+		animation-duration: 0.01ms !important;
+		animation-delay: 0ms !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* Syntax highlighting: Shiki emits both themes as CSS variables. */
+.shiki,
+.shiki span {
+	color: var(--shiki-light);
+	font-style: var(--shiki-light-font-style, inherit);
+	font-weight: var(--shiki-light-font-weight, inherit);
+}
+
+.dark .shiki,
+.dark .shiki span {
+	color: var(--shiki-dark);
+	font-style: var(--shiki-dark-font-style, inherit);
+	font-weight: var(--shiki-dark-font-weight, inherit);
+}
+
+.code-scroll {
+	scrollbar-width: thin;
+	scrollbar-color: var(--line-strong) transparent;
+}
+
+.thin-scroll {
+	scrollbar-width: thin;
+	scrollbar-color: var(--line) transparent;
+}
+
+.thin-scroll:hover {
+	scrollbar-color: var(--line-strong) transparent;
+}
