@@ -16,7 +16,7 @@ const messages = {
 			support: 'Support',
 		},
 		announcement: {
-			text: 'Rekka v0.0.1 is out: job queues and a typed cache for Rust.',
+			text: 'Rekka v0.0.2 is out: cron schedules and hydrated cache keys.',
 			cta: 'Read the docs',
 		},
 		hero: {
@@ -112,7 +112,7 @@ const messages = {
 			ai: 'Use with AI',
 			mcp: 'MCP server',
 			llms: 'llms.txt',
-			licenses: 'Dinoco ORM is Apache-2.0. Rekka is MIT or Apache-2.0.',
+			licenses: 'Dinoco ORM and Rekka are Apache-2.0.',
 		},
 		docsHome: {
 			title: 'Documentation',
@@ -164,7 +164,7 @@ const messages = {
 			support: 'Apoiar',
 		},
 		announcement: {
-			text: 'O Rekka v0.0.1 chegou: filas de jobs e cache tipado para Rust.',
+			text: 'O Rekka v0.0.2 chegou: agendamento cron e chaves de cache hidratadas.',
 			cta: 'Ler a documentação',
 		},
 		hero: {
@@ -260,7 +260,7 @@ const messages = {
 			ai: 'Usar com IA',
 			mcp: 'Servidor MCP',
 			llms: 'llms.txt',
-			licenses: 'O Dinoco ORM é Apache-2.0. O Rekka é MIT ou Apache-2.0.',
+			licenses: 'O Dinoco ORM e o Rekka são Apache-2.0.',
 		},
 		docsHome: {
 			title: 'Documentação',

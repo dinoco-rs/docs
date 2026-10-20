@@ -38,11 +38,11 @@ let for_requests = queues.clone();
 // ... inicie o servidor web com `for_requests` no estado ...
 
 tokio::signal::ctrl_c().await.expect("listen for Ctrl+C");
-// ... pare o servidor web primeiro, para nada enfileirar durante o encerramento ...
+// A partir daqui esta instância não pega nada novo, mesmo com outros servidores enfileirando.
 queues.shutdown().await?;
 ```
 
-Depois que o encerramento começa, os workers não pegam nada novo, os workers recorrentes param de agendar e `is_running()` retorna `false`. Enfileirar continua funcionando enquanto a conexão estiver aberta.
+Depois que o encerramento começa, os workers não pegam nada novo, os workers recorrentes param de agendar e `is_running()` retorna `false`. Com várias instâncias, outros servidores continuam enfileirando enquanto esta termina: esses jobs ficam na fila para as instâncias que continuam no ar, mesmo que esta tenha slots livres. Jobs que um claim já estava buscando quando o encerramento começou voltam para a fila sem executar e sem contar tentativa. Enfileirar por este handle continua funcionando enquanto a conexão estiver aberta.
 
 ## Timeout de encerramento
 

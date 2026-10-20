@@ -3,7 +3,7 @@
 O Rekka é uma biblioteca Rust para trabalho em background sobre o Redis: filas de jobs com retries e agendamento, workers recorrentes e um cache tipado. Ele foi feito para serviços que rodam em mais de uma instância. Toda mudança de estado acontece dentro de um único script atômico no Redis, jobs em execução têm lease com heartbeat e um processo que cai nunca perde nem duplica um job.
 
 > [!NOTE]
-> O Rekka faz parte do ecossistema Dinoco, ao lado do [Dinoco ORM](/pt-br/docs/orm/guide/introduction). A versão 0.0.1 é o primeiro lançamento público: a API ainda pode mudar antes da 1.0.
+> O Rekka faz parte do ecossistema Dinoco, ao lado do [Dinoco ORM](/pt-br/docs/orm/guide/introduction). O Rekka está nos primeiros lançamentos 0.0.x: a API ainda pode mudar antes da 1.0.
 
 ## Por que o Rekka
 
@@ -68,7 +68,7 @@ Sem `#[rekka(name = "...")]`, a fila recebe o nome da struct em snake_case, `res
 - Rust 1.88 ou mais recente (edition 2024).
 - Tokio. `#[tokio::main]` precisa das features `macros` e `rt-multi-thread` no seu crate.
 - `serde` com a feature `derive`: jobs e entradas de cache são guardados como JSON.
-- Um servidor Redis 6+. O Rekka 0.0.1 se conecta a um único endpoint Redis.
+- Um servidor Redis 6+. O Rekka 0.0.2 se conecta a um único endpoint Redis.
 
 ## Próximos passos
 

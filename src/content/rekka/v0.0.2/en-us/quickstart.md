@@ -16,7 +16,7 @@ docker run -d --name redis -p 6379:6379 redis:7
 ```bash
 cargo new rekka-quickstart
 cd rekka-quickstart
-cargo add rekka@0.0.1
+cargo add rekka@0.0.2
 cargo add serde --features derive
 cargo add tokio --features macros,rt-multi-thread
 ```

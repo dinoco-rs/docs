@@ -1,5 +1,5 @@
 import ormV2_1_8 from '../jsons/orm/v2.1.8';
-import rekkaV0_0_1 from '../jsons/rekka/v0.0.1';
+import rekkaV0_0_2 from '../jsons/rekka/v0.0.2';
 
 import type { DocsVersion } from '../jsons/types';
 import type { DocsLocale } from './locales';
@@ -57,7 +57,7 @@ export const PRODUCTS: Product[] = [
 			'en-us': ['Rekka', 'Rust job queue', 'Redis queue', 'background jobs', 'Rust cache', 'Redis cache', 'recurring jobs'],
 			'pt-br': ['Rekka', 'fila de jobs Rust', 'fila Redis', 'jobs em background', 'cache Rust', 'cache Redis', 'jobs recorrentes'],
 		},
-		license: { name: 'MIT OR Apache-2.0', url: 'https://github.com/dinoco-rs/rekka#-license' },
+		license: { name: 'Apache-2.0', url: 'https://github.com/dinoco-rs/rekka/blob/master/LICENSE' },
 		name: 'Rekka',
 		repository: 'https://github.com/dinoco-rs/rekka',
 		summary: {
@@ -70,7 +70,7 @@ export const PRODUCTS: Product[] = [
 			'en-us': 'Job queues, recurring workers, and a typed cache on top of the Redis you already run.',
 			'pt-br': 'Filas de jobs, workers recorrentes e cache tipado sobre o Redis que você já usa.',
 		},
-		versions: [rekkaV0_0_1],
+		versions: [rekkaV0_0_2],
 	},
 ];
 

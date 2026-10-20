@@ -30,6 +30,19 @@ In normal operation nothing is left behind: finished jobs are deleted at once, m
 
 It only touches the queues registered in that process (queues of other services sharing the prefix are left alone), works incrementally with short pauses so it uses a small fraction of Redis' CPU, and does not run at startup.
 
+## Redis outages and crashes
+
+Rekka keeps working through a Redis outage and picks up where it left off when Redis returns. Nothing needs to restart.
+
+- **Reconnection.** Every command goes through a connection that reconnects on its own. The notification subscription reconnects with backoff, and workers keep polling meanwhile.
+- **Workers back off.** While Redis is unreachable, claims, recovery, and recurring schedules fail with a warning and retry with exponential backoff (50 ms up to 5 s). Scripts flushed by a Redis restart are loaded again on first use.
+- **Running jobs keep their result.** A job that finishes during an outage keeps retrying its completion until Redis answers, so its result is not lost. If the outage outlasts the lease, another instance may recover and run the job again: delivery stays at least once.
+- **Recurring locks are taken back.** If a recurring worker's lock expires while its task is still running, the next heartbeat takes it back (when no other instance holds it), so the schedule does not start a second, concurrent run.
+- **Handler crashes.** A handler that panics fails that attempt and follows the retry policy. An error or panic in an `on_event` hook is caught and never reaches the worker.
+- **Internal crashes.** If one of Rekka's own loops (a queue worker, a recurring worker, the notification listener) ever panics, it is logged and restarted with backoff. Jobs that were running in that loop return to the queue when their lease expires.
+- **Startup.** `start()` and `Cache::connect` need Redis to be reachable: they return `RekkaError::Redis` instead of starting half-configured.
+- **Cache reads.** `Cache::get` reads as `None` while Redis is unreachable, so callers fall back to the source of truth.
+
 ## What Rekka stores in Redis
 
 All keys of a queue share the hash tag `{queue}`:
@@ -50,5 +63,5 @@ All keys of a queue share the hash tag `{queue}`:
 
 - Run as many instances as you need with the same Redis and prefix. Workers on every instance share each queue's jobs.
 - `concurrency` is per instance; [`concurrency_by_key`](/en-us/docs/rekka/queues/concurrency#concurrency-per-key) holds across all of them.
-- Recurring workers and reconcile run on one instance per cycle.
+- Recurring workers, reconcile, and the janitor run on one instance per cycle, through the same shared schedule and lock in Redis.
 - Redis is the single source of truth for queued jobs. Enable persistence (AOF) if losing queued jobs on a Redis restart is not acceptable, and use [reconcile](/en-us/docs/rekka/queues/reconcile) to rebuild queues from your database.

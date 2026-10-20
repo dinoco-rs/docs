@@ -21,18 +21,18 @@ cache.insert_many(&businesses).await?;                              // many entr
 ## Reading
 
 ```rust
-let one: Option<Business> = cache.get::<Business>(7).await?;
+let one: Option<Business> = cache.get::<Business>(7).await;
 let many: Vec<Option<Business>> = cache.get_many::<Business>([7, 8, 9]).await?;
 let cached: bool = cache.contains::<Business>(7).await?;
 ```
 
 | Method | Returns |
 | --- | --- |
-| `get::<T>(key)` | `Some(value)`, or `None` when the entry is missing, expired, or in an incompatible format. |
+| `get::<T>(key)` | `Some(value)`, or `None` when the entry is missing, expired, or in an incompatible format, the key is empty, or Redis cannot be reached. It never returns an error. |
 | `get_many::<T>(keys)` | One `Option<T>` per key, **in the same order** as the keys, read in chunks of 1,000. |
 | `contains::<T>(key)` | Whether the entry exists, without reading it. |
 
-Keys are anything that implements `Display`, the same as the key field.
+Keys are anything that implements `Display`, the same as the key field. For a type with a single-field key template, pass the field value or the full key: see [Dynamic keys](/en-us/docs/rekka/cache/cache-types#dynamic-keys).
 
 ## Removing
 
@@ -54,7 +54,7 @@ The usual pattern is to read from the cache and fall back to the database on a m
 
 ```rust
 async fn business(cache: &Cache, db: &Database, id: i64) -> anyhow::Result<Option<Business>> {
-    if let Some(cached) = cache.get::<Business>(id).await? {
+    if let Some(cached) = cache.get::<Business>(id).await {
         return Ok(Some(cached));
     }
 
@@ -71,4 +71,4 @@ After writing to the database, call `cache.remove::<Business>(id)` (or `insert` 
 
 ## Errors
 
-Cache methods return `rekka::Result`. Expect `RekkaError::Redis` when Redis is unreachable, `RekkaError::Serialization` when a value cannot be encoded, and `RekkaError::InvalidKey` for an empty key. A value that cannot be decoded is not an error: it reads as `None`.
+`get` never fails: a failure reads as a miss and is logged with `tracing`, so an unavailable cache falls back to your database instead of failing the request. The other cache methods return `rekka::Result`. Expect `RekkaError::Redis` when Redis is unreachable, `RekkaError::Serialization` when a value cannot be encoded, and `RekkaError::InvalidKey` for an empty key. A value that cannot be decoded is not an error: it reads as `None`.

@@ -30,6 +30,19 @@ Na operação normal nada fica para trás: jobs finalizados são apagados na hor
 
 Ele só mexe nas filas registradas naquele processo (filas de outros serviços que usam o mesmo prefixo ficam intactas), trabalha de forma incremental com pequenas pausas para usar uma fração pequena da CPU do Redis e não roda no start.
 
+## Quedas do Redis e falhas
+
+O Rekka continua funcionando durante uma queda do Redis e retoma de onde parou quando ele volta. Nada precisa ser reiniciado.
+
+- **Reconexão.** Todo comando passa por uma conexão que se reconecta sozinha. A assinatura de notificações se reconecta com backoff, e os workers continuam fazendo polling enquanto isso.
+- **Workers recuam.** Enquanto o Redis está inacessível, claims, recuperação e agendamentos recorrentes falham com um aviso e tentam de novo com backoff exponencial (de 50 ms até 5 s). Scripts apagados por um restart do Redis são carregados de novo no primeiro uso.
+- **Jobs em execução mantêm o resultado.** Um job que termina durante uma queda continua tentando concluir até o Redis responder, então o resultado não se perde. Se a queda passar da lease, outra instância pode recuperar e rodar o job de novo: a entrega continua sendo pelo menos uma vez.
+- **Locks recorrentes são retomados.** Se o lock de um worker recorrente expira enquanto a tarefa ainda roda, o próximo heartbeat o retoma (quando nenhuma outra instância o detém), então o agendamento não começa uma segunda execução simultânea.
+- **Falhas no handler.** Um handler que entra em pânico falha aquela tentativa e segue a política de retry. Um erro ou pânico no hook `on_event` é capturado e nunca chega ao worker.
+- **Falhas internas.** Se um dos loops do próprio Rekka (um worker de fila, um worker recorrente, o listener de notificações) entrar em pânico, ele é registrado no log e reiniciado com backoff. Os jobs que rodavam naquele loop voltam para a fila quando a lease expira.
+- **Subida.** `start()` e `Cache::connect` precisam do Redis acessível: retornam `RekkaError::Redis` em vez de subir configurados pela metade.
+- **Leituras do cache.** `Cache::get` retorna `None` enquanto o Redis está inacessível, então quem chama cai para a fonte da verdade.
+
 ## O que o Rekka guarda no Redis
 
 Todas as chaves de uma fila compartilham a hash tag `{fila}`:
@@ -50,5 +63,5 @@ Todas as chaves de uma fila compartilham a hash tag `{fila}`:
 
 - Rode quantas instâncias precisar com o mesmo Redis e o mesmo prefixo. Os workers de todas as instâncias dividem os jobs de cada fila.
 - `concurrency` é por instância; [`concurrency_by_key`](/pt-br/docs/rekka/queues/concurrency#concorrencia-por-key) vale somando todas.
-- Workers recorrentes e o reconcile rodam em uma instância por ciclo.
+- Workers recorrentes, o reconcile e o janitor rodam em uma instância por ciclo, pelo mesmo agendamento e lock compartilhados no Redis.
 - O Redis é a única fonte da verdade dos jobs enfileirados. Ative persistência (AOF) se perder jobs enfileirados em um restart do Redis não for aceitável, e use o [reconcile](/pt-br/docs/rekka/queues/reconcile) para reconstruir filas a partir do seu banco.

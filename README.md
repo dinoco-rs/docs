@@ -5,7 +5,7 @@ The website of the Dinoco ecosystem, served at [dinoco.io](https://dinoco.io): t
 | Product | Crate | Published version | Content |
 | --- | --- | --- | --- |
 | Dinoco ORM | `dinoco` | v2.1.7 | `src/content/orm/v2.1.7` |
-| Rekka | `rekka` | v0.0.1 | `src/content/rekka/v0.0.1` |
+| Rekka | `rekka` | v0.0.2 | `src/content/rekka/v0.0.2` |
 
 ```bash
 yarn install

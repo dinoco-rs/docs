@@ -33,4 +33,4 @@ get_doc      { "id": "rekka/queues/retries", "section": "Attempt limits" }
 
 - Name the API the way the docs do (`concurrency_by_key`, `ReconcileHandler`, `RekkaExecutionResult`), so search finds the right page.
 - Ask the assistant to read the page first: "Read `rekka/queues/concurrency` and write a worker that syncs one customer at a time."
-- Say which version you use. These docs describe Rekka v0.0.1.
+- Say which version you use. These docs describe Rekka v0.0.2.

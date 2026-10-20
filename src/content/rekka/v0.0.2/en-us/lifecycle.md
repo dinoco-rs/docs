@@ -38,11 +38,11 @@ let for_requests = queues.clone();
 // ... start your web server with `for_requests` in its state ...
 
 tokio::signal::ctrl_c().await.expect("listen for Ctrl+C");
-// ... stop the web server first, so nothing enqueues during shutdown ...
+// From here on this instance claims nothing new, even while other servers keep enqueueing.
 queues.shutdown().await?;
 ```
 
-After shutdown starts, workers claim nothing new, recurring workers stop scheduling, and `is_running()` returns `false`. Enqueueing still works while the connection is open.
+After shutdown starts, workers claim nothing new, recurring workers stop scheduling, and `is_running()` returns `false`. With several instances, other servers keep enqueueing while this one drains: those jobs stay in the queue for the instances that are still running, even if this one has free slots. Jobs a claim was already fetching when shutdown started go back to the queue without running and without counting an attempt. Enqueueing from this handle still works while the connection is open.
 
 ## Shutdown timeout
 

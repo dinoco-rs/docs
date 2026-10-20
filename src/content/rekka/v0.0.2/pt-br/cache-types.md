@@ -43,12 +43,14 @@ struct PaymentSummary {
 }
 ```
 
-`PaymentSummary { business_id: 42, .. }` é guardado com a key `payments-42`, e as leituras usam essa mesma key:
+`PaymentSummary { business_id: 42, .. }` é guardado com a key `payments-42`. Com um template de um único `{campo}`, as leituras aceitam o valor do campo ou a key completa:
 
 ```rust
-let summary = cache.get::<PaymentSummary>("payments-42").await?;
-let summary = cache.get::<PaymentSummary>(format!("payments-{business_id}")).await?;
+let summary = cache.get::<PaymentSummary>(42).await;            // hidratada para "payments-42"
+let summary = cache.get::<PaymentSummary>("payments-42").await; // já é a key completa
 ```
+
+O mesmo vale para `get_many`, `contains`, `remove` e `remove_many`. Um valor que já tem o formato do template (começa e termina com o texto fixo dele, com algo no lugar do campo) é usado como está; qualquer outro preenche o campo, aplicando o especificador de formato do template (`"inv-{number:06}"` transforma `42` em `inv-000042`). Templates com vários campos, ou com um especificador de tipo como `{id:x}`, continuam lendo pela key completa.
 
 | Template | Exemplo | Key |
 | --- | --- | --- |

@@ -12,7 +12,7 @@
 							"name": "Introdução",
 							"shortName": "introduction",
 							"description": "O que é o Rekka, o que ele oferece e como jobs, workers e o cache se encaixam.",
-							"contentPath": "rekka/v0.0.1/pt-br/introduction.md",
+							"contentPath": "rekka/v0.0.2/pt-br/introduction.md",
 							"inPage": [
 								"Por que o Rekka",
 								"O que você ganha",
@@ -26,7 +26,7 @@
 							"name": "Quickstart",
 							"shortName": "quickstart",
 							"description": "De um crate vazio a um worker que faz retry de falhas e encerra de forma limpa.",
-							"contentPath": "rekka/v0.0.1/pt-br/quickstart.md",
+							"contentPath": "rekka/v0.0.2/pt-br/quickstart.md",
 							"inPage": [
 								"Pré-requisitos",
 								"1. Crie o projeto",
@@ -42,7 +42,7 @@
 							"name": "Vindo do BullMQ",
 							"shortName": "coming-from-bullmq",
 							"description": "Como filas, workers, retries e jobs repetíveis do BullMQ se traduzem para o Rekka.",
-							"contentPath": "rekka/v0.0.1/pt-br/coming-from-bullmq.md",
+							"contentPath": "rekka/v0.0.2/pt-br/coming-from-bullmq.md",
 							"inPage": [
 								"Mapa de conceitos",
 								{
@@ -63,7 +63,7 @@
 							"name": "Usar com IA",
 							"shortName": "ai",
 							"description": "Leia a documentação do Rekka em um assistente de IA pelo servidor MCP e pelo llms.txt.",
-							"contentPath": "rekka/v0.0.1/pt-br/ai.md",
+							"contentPath": "rekka/v0.0.2/pt-br/ai.md",
 							"inPage": [
 								"Servidor MCP",
 								"Ids das páginas do Rekka",
@@ -75,8 +75,9 @@
 							"name": "Notas de versão",
 							"shortName": "release-notes",
 							"description": "O que mudou em cada versão do Rekka.",
-							"contentPath": "rekka/v0.0.1/pt-br/release-notes.md",
+							"contentPath": "rekka/v0.0.2/pt-br/release-notes.md",
 							"inPage": [
+								"v0.0.2",
 								"v0.0.1"
 							]
 						}
@@ -96,7 +97,7 @@
 							"name": "Jobs e enfileiramento",
 							"shortName": "jobs",
 							"description": "Defina jobs com RekkaQueue, enfileire agora ou depois e entenda os upserts por task_id.",
-							"contentPath": "rekka/v0.0.1/pt-br/jobs.md",
+							"contentPath": "rekka/v0.0.2/pt-br/jobs.md",
 							"inPage": [
 								{
 									"title": "Definindo um job",
@@ -124,7 +125,7 @@
 							"name": "Inspecionar e remover jobs",
 							"shortName": "managing-jobs",
 							"description": "Remova um job, leia o estado, conte uma fila e apague uma fila inteira.",
-							"contentPath": "rekka/v0.0.1/pt-br/managing-jobs.md",
+							"contentPath": "rekka/v0.0.2/pt-br/managing-jobs.md",
 							"inPage": [
 								"Removendo um job",
 								"Consultando o estado de um job",
@@ -142,7 +143,7 @@
 							"name": "Workers",
 							"shortName": "workers",
 							"description": "Registre workers, todas as opções de worker e como os jobs são pegos.",
-							"contentPath": "rekka/v0.0.1/pt-br/workers.md",
+							"contentPath": "rekka/v0.0.2/pt-br/workers.md",
 							"inPage": [
 								"Registrando um worker",
 								{
@@ -162,7 +163,7 @@
 							"name": "Handlers e extractors",
 							"shortName": "handlers",
 							"description": "Assinaturas de handlers, JobHandler, tipos de retorno e extractors como RekkaState.",
-							"contentPath": "rekka/v0.0.1/pt-br/handlers.md",
+							"contentPath": "rekka/v0.0.2/pt-br/handlers.md",
 							"inPage": [
 								"Assinatura do handler",
 								"O JobHandler",
@@ -183,7 +184,7 @@
 							"name": "Retries e falhas",
 							"shortName": "retries",
 							"description": "O que conta como falha, políticas de retry, limite de tentativas, reagendamento e jobs mortos.",
-							"contentPath": "rekka/v0.0.1/pt-br/retries.md",
+							"contentPath": "rekka/v0.0.2/pt-br/retries.md",
 							"inPage": [
 								"O que conta como falha",
 								"Políticas de retry",
@@ -198,7 +199,7 @@
 							"name": "Concorrência",
 							"shortName": "concurrency",
 							"description": "Concorrência por processo e concorrência por key em todas as instâncias.",
-							"contentPath": "rekka/v0.0.1/pt-br/concurrency.md",
+							"contentPath": "rekka/v0.0.2/pt-br/concurrency.md",
 							"inPage": [
 								"Concorrência por processo",
 								{
@@ -219,10 +220,11 @@
 						{
 							"name": "Workers recorrentes",
 							"shortName": "recurring",
-							"description": "Tarefas por intervalo que rodam em exatamente uma instância por ciclo.",
-							"contentPath": "rekka/v0.0.1/pt-br/recurring.md",
+							"description": "Tarefas por intervalo ou cron que rodam em exatamente uma instância por ciclo.",
+							"contentPath": "rekka/v0.0.2/pt-br/recurring.md",
 							"inPage": [
 								"Registrando um worker recorrente",
+								"Agendamento cron",
 								"Como as execuções são agendadas",
 								"Eventos",
 								"Workers recorrentes ou jobs agendados"
@@ -232,7 +234,7 @@
 							"name": "Reconcile",
 							"shortName": "reconcile",
 							"description": "Recrie os jobs que o seu banco diz que deveriam existir, sem duplicar os que já estão no Redis.",
-							"contentPath": "rekka/v0.0.1/pt-br/reconcile.md",
+							"contentPath": "rekka/v0.0.2/pt-br/reconcile.md",
 							"inPage": [
 								"Registrando uma função de reconcile",
 								"Quando roda",
@@ -250,7 +252,7 @@
 							"name": "Eventos",
 							"shortName": "events",
 							"description": "Um hook para cada transição de job: tipos, dados e como ler o job de volta.",
-							"contentPath": "rekka/v0.0.1/pt-br/events.md",
+							"contentPath": "rekka/v0.0.2/pt-br/events.md",
 							"inPage": [
 								"Registrando um handler",
 								"Tipos de evento",
@@ -274,7 +276,7 @@
 							"name": "Tipos de cache",
 							"shortName": "cache-types",
 							"description": "Derive RekkaCache com key e TTL, o formato das chaves e como obter um Cache.",
-							"contentPath": "rekka/v0.0.1/pt-br/cache-types.md",
+							"contentPath": "rekka/v0.0.2/pt-br/cache-types.md",
 							"inPage": [
 								"Derivando RekkaCache",
 								"Keys dinâmicas",
@@ -288,7 +290,7 @@
 							"name": "Leitura e escrita",
 							"shortName": "cache-operations",
 							"description": "Insira, leia e remova entradas uma a uma ou em lote.",
-							"contentPath": "rekka/v0.0.1/pt-br/cache-operations.md",
+							"contentPath": "rekka/v0.0.2/pt-br/cache-operations.md",
 							"inPage": [
 								"Escrevendo",
 								"Lendo",
@@ -313,7 +315,7 @@
 							"name": "Configuração",
 							"shortName": "configuration",
 							"description": "Todas as opções do builder, a URL do Redis, o prefixo das chaves e a validação no start.",
-							"contentPath": "rekka/v0.0.1/pt-br/configuration.md",
+							"contentPath": "rekka/v0.0.2/pt-br/configuration.md",
 							"inPage": [
 								"O builder",
 								"Opções",
@@ -328,7 +330,7 @@
 							"name": "Inicialização e encerramento",
 							"shortName": "lifecycle",
 							"description": "start, join, encerramento gracioso, timeout de encerramento e abort.",
-							"contentPath": "rekka/v0.0.1/pt-br/lifecycle.md",
+							"contentPath": "rekka/v0.0.2/pt-br/lifecycle.md",
 							"inPage": [
 								"Iniciando",
 								"Esperando com join",
@@ -342,12 +344,13 @@
 							"name": "Confiabilidade e escala",
 							"shortName": "reliability",
 							"description": "Scripts atômicos, leases, entrega at-least-once, o janitor e as chaves no Redis.",
-							"contentPath": "rekka/v0.0.1/pt-br/reliability.md",
+							"contentPath": "rekka/v0.0.2/pt-br/reliability.md",
 							"inPage": [
 								"Transições atômicas",
 								"Leases e heartbeats",
 								"Notificações e polling",
 								"O janitor",
+								"Quedas do Redis e falhas",
 								"O que o Rekka guarda no Redis",
 								"Escalando"
 							]
@@ -356,7 +359,7 @@
 							"name": "Testes",
 							"shortName": "testing",
 							"description": "Teste contra um Redis real com prefixos isolados e eventos.",
-							"contentPath": "rekka/v0.0.1/pt-br/testing.md",
+							"contentPath": "rekka/v0.0.2/pt-br/testing.md",
 							"inPage": [
 								"Rode um Redis para os testes",
 								"Isole cada teste com um prefixo",
@@ -382,7 +385,7 @@
 							"name": "Referência da API",
 							"shortName": "api-reference",
 							"description": "Todos os tipos, métodos e erros públicos do crate rekka.",
-							"contentPath": "rekka/v0.0.1/pt-br/api-reference.md",
+							"contentPath": "rekka/v0.0.2/pt-br/api-reference.md",
 							"inPage": [
 								"Queues e QueuesBuilder",
 								"RekkaWorker",
