@@ -144,7 +144,8 @@ Field methods that build an aggregate for `find_many(...).pluck(...)`, and the g
 | `Integer`/`Float` (optional included) | `avg` | `Option<f64>` |
 | `Integer`, `Float`, `String`, `DateTime`, `Date` (optional included) | `min`, `max` | `Option<T>` |
 | Every scalar field | `count` (non-`NULL` values) | `i64` |
-| `DateTime`/`Date` (group key) | `day`, `week`, `month`, `year` | `NaiveDate` of the period's first day, `Option<NaiveDate>` when optional |
+| `DateTime`/`Date` (group key) | `date` (or `day`), `week`, `month`, `year` | `NaiveDate` of the period's first day, `Option<NaiveDate>` when optional |
+| `DateTime` (group key) | `hour`, `minute` | `DateTime<Utc>` the hour or minute starts at, `Option<DateTime<Utc>>` when optional |
 | Every scalar field (group key) | the field itself | the field's type |
 
 Without `.group_by(...)`, `where_`, `where_complex`, `take`, `skip`, and `order_by` pick the rows aggregated. With it, `order_by` on the grouped field orders by key, on the aggregated field by value, and `take`/`skip` page the groups. See [Group the aggregate](/en-us/docs/orm/orm/find-many#group-the-aggregate).

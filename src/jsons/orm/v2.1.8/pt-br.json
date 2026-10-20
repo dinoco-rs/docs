@@ -173,7 +173,7 @@
 							"shortName": "find-many",
 							"description": "Busque, ordene e pagine várias rows.",
 							"contentPath": "orm/v2.1.8/pt-br/find-many.md",
-							"inPage": ["Consulta básica", "Ordene os resultados", "Paginação", "Busca full-text", "Selecione e inclua", "Pluck em uma única coluna", "Agregue uma coluna", "Rows da agregação", "Agrupe a agregação", "Agrupe por data", "Ordene e pagine os grupos", "Transforme os resultados", "Leia no primary", "Dentro de uma transaction"]
+							"inPage": ["Consulta básica", "Ordene os resultados", "Paginação", "Busca full-text", "Selecione e inclua", "Pluck em uma única coluna", "Agregue uma coluna", "Rows da agregação", "Agrupe a agregação", "Agrupe por data e hora", "Ordene e pagine os grupos", "Transforme os resultados", "Leia no primary", "Dentro de uma transaction"]
 						},
 						{
 							"name": "Select",

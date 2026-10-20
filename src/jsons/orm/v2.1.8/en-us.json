@@ -173,7 +173,7 @@
 							"shortName": "find-many",
 							"description": "Fetch, order, and paginate several rows.",
 							"contentPath": "orm/v2.1.8/en-us/find-many.md",
-							"inPage": ["Basic query", "Order results", "Pagination", "Full-text search", "Select and include", "Pluck a single column", "Aggregate a column", "Rows in the aggregate", "Group the aggregate", "Group by date", "Order and page groups", "Transform results", "Read from primary", "Inside a transaction"]
+							"inPage": ["Basic query", "Order results", "Pagination", "Full-text search", "Select and include", "Pluck a single column", "Aggregate a column", "Rows in the aggregate", "Group the aggregate", "Group by date and time", "Order and page groups", "Transform results", "Read from primary", "Inside a transaction"]
 						},
 						{
 							"name": "Select",

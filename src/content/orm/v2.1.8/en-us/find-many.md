@@ -37,6 +37,8 @@ let page = dinoco::find_many::<Account>()
     .await?;
 ```
 
+`skip` works without `take` too, returning every row after the skipped ones. SQLite and MySQL only accept `OFFSET` after a `LIMIT`, so Dinoco writes each one's "no limit" value there (`LIMIT -1` and `LIMIT 18446744073709551615`); PostgreSQL takes `OFFSET` alone.
+
 > [!WARNING]
 > Offset pagination (`take`/`skip`) only produces a stable, non-overlapping sequence of pages when paired with a stable `order_by`. Paginate without ordering — or order by a column with ties, like a status field — and rows can appear on two pages or vanish between them as the underlying data changes.
 
@@ -137,26 +139,44 @@ let revenue_by_status = dinoco::find_many::<Order>()
 
 Any scalar field can be the key, enums and optional fields included. `NULL` is a group of its own, read back as `None`. `where_`, `where_complex`, and relation filters still pick the rows that are grouped.
 
-### Group by date
+### Group by date and time
 
-On a `DateTime` or `Date` field, `day()`, `week()`, `month()`, and `year()` group by the period a value falls in. The key is the first day of that period as a `NaiveDate` (weeks start on Monday), or `Option<NaiveDate>` for an optional field:
+On a `DateTime` or `Date` field, `date()`, `week()`, `month()`, and `year()` group by the period a value falls in. The key is the first day of that period as a `NaiveDate` (weeks start on Monday), or `Option<NaiveDate>` for an optional field. `date()` groups by the full date (day, month, and year); `day()` is the same method under another name.
+
+On a `DateTime` field, `hour()` and `minute()` group by the hour or minute of a value. The key is the timestamp the period starts at, as a `DateTime<Utc>` (`Option<DateTime<Utc>>` for an optional field): 18:30:42 falls in the hour 18:00:00 and in the minute 18:30:00.
+
+| Method | Fields | Key of `2026-01-05 18:30:42` |
+| --- | --- | --- |
+| `date()`, `day()` | `DateTime`, `Date` | `2026-01-05` |
+| `week()` | `DateTime`, `Date` | `2026-01-05` (its Monday) |
+| `month()` | `DateTime`, `Date` | `2026-01-01` |
+| `year()` | `DateTime`, `Date` | `2026-01-01` |
+| `hour()` | `DateTime` | `2026-01-05 18:00:00` |
+| `minute()` | `DateTime` | `2026-01-05 18:30:00` |
 
 ```rust
-use dinoco::chrono::NaiveDate;
+use dinoco::chrono::{DateTime, NaiveDate, Utc};
 
 let daily: Vec<(NaiveDate, i64)> = dinoco::find_many::<Order>()
     .where_(|order| order.created_at.gte(start))
     .pluck(|order| order.amount.sum())
-    .group_by(|order| order.created_at.day())
+    .group_by(|order| order.created_at.date())
     .execute(&client)
     .await?;
 
 for (day, total) in daily {
-    println!("{day}: {total}");
+    println!("{}: {total}", day.format("%d/%m/%Y"));
 }
+
+let hourly: Vec<(DateTime<Utc>, i64)> = dinoco::find_many::<Order>()
+    .where_(|order| order.created_at.gte(start))
+    .pluck(|order| order.id.count())
+    .group_by(|order| order.created_at.hour())
+    .execute(&client)
+    .await?;
 ```
 
-Periods follow the UTC values Dinoco stores, so a day runs from 00:00 to 24:00 UTC.
+Periods follow the UTC values Dinoco stores, so a day runs from 00:00 to 24:00 UTC and an hour starts at minute zero UTC. The key is a date or a timestamp, not text: format it however you need, as `day.format("%d/%m/%Y")` does above.
 
 ### Order and page groups
 

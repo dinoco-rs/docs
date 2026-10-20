@@ -144,7 +144,8 @@ Methods de field que montam uma agregação para `find_many(...).pluck(...)`, e 
 | `Integer`/`Float` (opcionais inclusos) | `avg` | `Option<f64>` |
 | `Integer`, `Float`, `String`, `DateTime`, `Date` (opcionais inclusos) | `min`, `max` | `Option<T>` |
 | Todo field escalar | `count` (valores não `NULL`) | `i64` |
-| `DateTime`/`Date` (chave de grupo) | `day`, `week`, `month`, `year` | `NaiveDate` do primeiro dia do período, `Option<NaiveDate>` quando opcional |
+| `DateTime`/`Date` (chave de grupo) | `date` (ou `day`), `week`, `month`, `year` | `NaiveDate` do primeiro dia do período, `Option<NaiveDate>` quando opcional |
+| `DateTime` (chave de grupo) | `hour`, `minute` | `DateTime<Utc>` em que a hora ou o minuto começa, `Option<DateTime<Utc>>` quando opcional |
 | Todo field escalar (chave de grupo) | o próprio field | o tipo do field |
 
 Sem `.group_by(...)`, `where_`, `where_complex`, `take`, `skip` e `order_by` escolhem as rows agregadas. Com ele, `order_by` no field agrupado ordena pela chave, no field agregado pelo valor, e `take`/`skip` paginam os grupos. Veja [Agrupe a agregação](/pt-br/docs/orm/orm/find-many#agrupe-a-agregacao).
