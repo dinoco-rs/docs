@@ -58,7 +58,7 @@ async fn main() -> anyhow::Result<()> {
 		code: `
 use ::dinoco::find_first;
 use dinoco_engine::DinocoClient;
-use rekka::{JobHandler, RekkaQueue, RekkaState};
+use rekka::{JobHandler, RekkaQueue, RekkaData};
 use serde::{Deserialize, Serialize};
 
 use crate::dinoco::User;
@@ -73,7 +73,7 @@ pub struct WelcomeEmail {
 pub async fn send_welcome(
     handler: JobHandler,
     job: WelcomeEmail,
-    RekkaState(db): RekkaState<DinocoClient>,
+    RekkaData(db): RekkaData<DinocoClient>,
 ) -> anyhow::Result<()> {
     let user = find_first::<User>()
         .where_(|x| x.id.eq(job.user_id.as_str()))

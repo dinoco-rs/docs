@@ -1,0 +1,410 @@
+{
+	"groups": [
+		{
+			"name": "Guia",
+			"shortName": "guide",
+			"icon": "rocket",
+			"sections": [
+				{
+					"title": "Comece aqui",
+					"items": [
+						{
+							"name": "Introdução",
+							"shortName": "introduction",
+							"description": "O que é o Rekka, o que ele oferece e como jobs, workers e o cache se encaixam.",
+							"contentPath": "rekka/v0.0.3/pt-br/introduction.md",
+							"inPage": [
+								"Por que o Rekka",
+								"O que você ganha",
+								"Como as peças se encaixam",
+								"Um exemplo mínimo",
+								"Requisitos",
+								"Próximos passos"
+							]
+						},
+						{
+							"name": "Quickstart",
+							"shortName": "quickstart",
+							"description": "De um crate vazio a um worker que faz retry de falhas e encerra de forma limpa.",
+							"contentPath": "rekka/v0.0.3/pt-br/quickstart.md",
+							"inPage": [
+								"Pré-requisitos",
+								"1. Crie o projeto",
+								"2. Defina um job",
+								"3. Escreva o handler",
+								"4. Inicie as filas",
+								"5. Rode",
+								"6. Veja o upsert",
+								"Próximos passos"
+							]
+						},
+						{
+							"name": "Vindo do BullMQ",
+							"shortName": "coming-from-bullmq",
+							"description": "Como filas, workers, retries e jobs repetíveis do BullMQ se traduzem para o Rekka.",
+							"contentPath": "rekka/v0.0.3/pt-br/coming-from-bullmq.md",
+							"inPage": [
+								"Mapa de conceitos",
+								{
+									"title": "Diferenças que importam",
+									"items": [
+										"Adicionar de novo atualiza o job",
+										"Jobs finalizados não são guardados",
+										"Jobs são tipos, não nomes mais dados",
+										"Todo job tem um id",
+										"Reagendar não é falhar",
+										"O reconcile não tem equivalente direto"
+									]
+								},
+								"Próximos passos"
+							]
+						},
+						{
+							"name": "Usar com IA",
+							"shortName": "ai",
+							"description": "Leia a documentação do Rekka em um assistente de IA pelo servidor MCP e pelo llms.txt.",
+							"contentPath": "rekka/v0.0.3/pt-br/ai.md",
+							"inPage": [
+								"Servidor MCP",
+								"Ids das páginas do Rekka",
+								"llms.txt",
+								"Dicas para prompts"
+							]
+						},
+						{
+							"name": "Notas de versão",
+							"shortName": "release-notes",
+							"description": "O que mudou em cada versão do Rekka.",
+							"contentPath": "rekka/v0.0.3/pt-br/release-notes.md",
+							"inPage": [
+								"v0.0.3",
+								"v0.0.2",
+								"v0.0.1"
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Filas",
+			"shortName": "queues",
+			"icon": "layers",
+			"sections": [
+				{
+					"title": "Jobs",
+					"items": [
+						{
+							"name": "Jobs e enfileiramento",
+							"shortName": "jobs",
+							"description": "Defina jobs com RekkaQueue, enfileire agora ou depois e entenda os upserts por task_id.",
+							"contentPath": "rekka/v0.0.3/pt-br/jobs.md",
+							"inPage": [
+								{
+									"title": "Definindo um job",
+									"items": [
+										"O task_id",
+										"Nomes de fila",
+										"Atributos do derive"
+									]
+								},
+								{
+									"title": "Enfileirando",
+									"items": [
+										"Rodar agora",
+										"Rodar em um instante",
+										"Rodar depois de um tempo",
+										"Vários de uma vez"
+									]
+								},
+								"Upserts",
+								"De onde enfileirar",
+								"Formato do payload"
+							]
+						},
+						{
+							"name": "Inspecionar e remover jobs",
+							"shortName": "managing-jobs",
+							"description": "Remova um job, leia o estado, conte uma fila e apague uma fila inteira.",
+							"contentPath": "rekka/v0.0.3/pt-br/managing-jobs.md",
+							"inPage": [
+								"Removendo um job",
+								"Consultando o estado de um job",
+								"Estatísticas da fila",
+								"Apagando uma fila",
+								"Jobs finalizados não são guardados"
+							]
+						}
+					]
+				},
+				{
+					"title": "Workers",
+					"items": [
+						{
+							"name": "Workers",
+							"shortName": "workers",
+							"description": "Registre workers, todas as opções de worker e como os jobs são pegos.",
+							"contentPath": "rekka/v0.0.3/pt-br/workers.md",
+							"inPage": [
+								"Registrando um worker",
+								{
+									"title": "Opções do worker",
+									"items": [
+										"Concorrência",
+										"Timeout",
+										"Lease"
+									]
+								},
+								"Como um worker pega jobs",
+								"Produtores e workers em processos diferentes",
+								"Validação no start"
+							]
+						},
+						{
+							"name": "Handlers e extractors",
+							"shortName": "handlers",
+							"description": "Assinaturas de handlers, JobHandler, tipos de retorno e extractors como RekkaData.",
+							"contentPath": "rekka/v0.0.3/pt-br/handlers.md",
+							"inPage": [
+								"Assinatura do handler",
+								"O JobHandler",
+								"Tipos de retorno",
+								{
+									"title": "Extractors",
+									"items": [
+										"RekkaData",
+										"RekkaClient",
+										"Cache",
+										"ReconcileHandler"
+									]
+								},
+								"Escrevendo o seu próprio extractor"
+							]
+						},
+						{
+							"name": "Retries e falhas",
+							"shortName": "retries",
+							"description": "O que conta como falha, políticas de retry, limite de tentativas, reagendamento e jobs mortos.",
+							"contentPath": "rekka/v0.0.3/pt-br/retries.md",
+							"inPage": [
+								"O que conta como falha",
+								"Políticas de retry",
+								"Limite de tentativas",
+								"Reagendando pelo handler",
+								"Timeouts e pânicos",
+								"Jobs mortos",
+								"Escolhendo uma política"
+							]
+						},
+						{
+							"name": "Concorrência",
+							"shortName": "concurrency",
+							"description": "Concorrência por processo e concorrência por key em todas as instâncias.",
+							"contentPath": "rekka/v0.0.3/pt-br/concurrency.md",
+							"inPage": [
+								"Concorrência por processo",
+								{
+									"title": "Concorrência por key",
+									"items": [
+										"Como a espera funciona",
+										"Quando a key é calculada"
+									]
+								},
+								"Combinando os dois limites"
+							]
+						}
+					]
+				},
+				{
+					"title": "Agendamento",
+					"items": [
+						{
+							"name": "Workers recorrentes",
+							"shortName": "recurring",
+							"description": "Tarefas por intervalo ou cron que rodam em exatamente uma instância por ciclo.",
+							"contentPath": "rekka/v0.0.3/pt-br/recurring.md",
+							"inPage": [
+								"Registrando um worker recorrente",
+								"Agendamento cron",
+								"Como as execuções são agendadas",
+								"Eventos",
+								"Workers recorrentes ou jobs agendados"
+							]
+						},
+						{
+							"name": "Reconcile",
+							"shortName": "reconcile",
+							"description": "Recrie os jobs que o seu banco diz que deveriam existir, sem duplicar os que já estão no Redis.",
+							"contentPath": "rekka/v0.0.3/pt-br/reconcile.md",
+							"inPage": [
+								"Registrando uma função de reconcile",
+								"Quando roda",
+								"O ReconcileHandler",
+								"Por que o completed_ttl importa",
+								"Eventos"
+							]
+						}
+					]
+				},
+				{
+					"title": "Observabilidade",
+					"items": [
+						{
+							"name": "Eventos",
+							"shortName": "events",
+							"description": "Um hook para cada transição de job: tipos, dados e como ler o job de volta.",
+							"contentPath": "rekka/v0.0.3/pt-br/events.md",
+							"inPage": [
+								"Registrando um handler",
+								"Tipos de evento",
+								"Dados do evento",
+								"Lendo o job"
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Cache",
+			"shortName": "cache",
+			"icon": "zap",
+			"sections": [
+				{
+					"title": "Cache tipado",
+					"items": [
+						{
+							"name": "Tipos de cache",
+							"shortName": "cache-types",
+							"description": "Derive RekkaCache com key e TTL, o formato das chaves e como obter um Cache.",
+							"contentPath": "rekka/v0.0.3/pt-br/cache-types.md",
+							"inPage": [
+								"Derivando RekkaCache",
+								"Keys dinâmicas",
+								"Formato das chaves",
+								"Implementando a trait à mão",
+								"Obtendo um Cache",
+								"Mudando um tipo cacheado"
+							]
+						},
+						{
+							"name": "Leitura e escrita",
+							"shortName": "cache-operations",
+							"description": "Insira, leia e remova entradas uma a uma ou em lote.",
+							"contentPath": "rekka/v0.0.3/pt-br/cache-operations.md",
+							"inPage": [
+								"Escrevendo",
+								"Lendo",
+								"Removendo",
+								"Um helper de read-through",
+								"Erros"
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Operação",
+			"shortName": "operations",
+			"icon": "settings",
+			"sections": [
+				{
+					"title": "Em produção",
+					"items": [
+						{
+							"name": "Configuração",
+							"shortName": "configuration",
+							"description": "Todas as opções do builder, a URL do Redis, o prefixo das chaves e a validação no start.",
+							"contentPath": "rekka/v0.0.3/pt-br/configuration.md",
+							"inPage": [
+								"O builder",
+								"Opções",
+								"URL do Redis",
+								"Prefixo das chaves",
+								"Validação no start",
+								"Falhas de conexão",
+								"Logs"
+							]
+						},
+						{
+							"name": "Inicialização e encerramento",
+							"shortName": "lifecycle",
+							"description": "start, join, encerramento gracioso, timeout de encerramento e abort.",
+							"contentPath": "rekka/v0.0.3/pt-br/lifecycle.md",
+							"inPage": [
+								"Iniciando",
+								"Esperando com join",
+								"Encerrando pelo código",
+								"Timeout de encerramento",
+								"Abortando",
+								"Checklist para produção"
+							]
+						},
+						{
+							"name": "Confiabilidade e escala",
+							"shortName": "reliability",
+							"description": "Scripts atômicos, leases, entrega at-least-once, o janitor e as chaves no Redis.",
+							"contentPath": "rekka/v0.0.3/pt-br/reliability.md",
+							"inPage": [
+								"Transições atômicas",
+								"Leases e heartbeats",
+								"Notificações e polling",
+								"O janitor",
+								"Quedas do Redis e falhas",
+								"O que o Rekka guarda no Redis",
+								"Escalando"
+							]
+						},
+						{
+							"name": "Testes",
+							"shortName": "testing",
+							"description": "Teste contra um Redis real com prefixos isolados e eventos.",
+							"contentPath": "rekka/v0.0.3/pt-br/testing.md",
+							"inPage": [
+								"Rode um Redis para os testes",
+								"Isole cada teste com um prefixo",
+								"Espere um job com eventos",
+								"Mantenha os handlers finos",
+								"Limpeza",
+								"A suíte de testes do próprio Rekka"
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Referência",
+			"shortName": "reference",
+			"icon": "box",
+			"sections": [
+				{
+					"title": "API",
+					"items": [
+						{
+							"name": "Referência da API",
+							"shortName": "api-reference",
+							"description": "Todos os tipos, métodos e erros públicos do crate rekka.",
+							"contentPath": "rekka/v0.0.3/pt-br/api-reference.md",
+							"inPage": [
+								"Queues e QueuesBuilder",
+								"RekkaWorker",
+								"RekkaRecursiveWorker",
+								"RekkaClient e ReconcileHandler",
+								"Handlers",
+								"Extractors",
+								"Status",
+								"Eventos",
+								"Cache",
+								"Jobs",
+								"Erros",
+								"Re-exports"
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}
