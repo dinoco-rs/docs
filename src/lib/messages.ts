@@ -16,7 +16,7 @@ const messages = {
 			support: 'Support',
 		},
 		announcement: {
-			text: 'Rekka v0.0.2 is out: cron schedules and hydrated cache keys.',
+			text: 'Rekka v0.0.4 is out: jobs that survive Redis outages and a smarter reconcile.',
 			cta: 'Read the docs',
 		},
 		hero: {
@@ -164,7 +164,7 @@ const messages = {
 			support: 'Apoiar',
 		},
 		announcement: {
-			text: 'O Rekka v0.0.2 chegou: agendamento cron e chaves de cache hidratadas.',
+			text: 'O Rekka v0.0.4 chegou: jobs que sobrevivem a quedas do Redis e um reconcile mais esperto.',
 			cta: 'Ler a documentação',
 		},
 		hero: {
