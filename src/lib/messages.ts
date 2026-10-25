@@ -16,7 +16,7 @@ const messages = {
 			support: 'Support',
 		},
 		announcement: {
-			text: 'Rekka v0.0.4 is out: jobs that survive Redis outages and a smarter reconcile.',
+			text: 'Rekka v0.0.5 is out: large handlers no longer overflow the stack, and startup flags them.',
 			cta: 'Read the docs',
 		},
 		hero: {
@@ -164,7 +164,7 @@ const messages = {
 			support: 'Apoiar',
 		},
 		announcement: {
-			text: 'O Rekka v0.0.4 chegou: jobs que sobrevivem a quedas do Redis e um reconcile mais esperto.',
+			text: 'O Rekka v0.0.5 chegou: handlers grandes não estouram mais o stack, e o start avisa sobre eles.',
 			cta: 'Ler a documentação',
 		},
 		hero: {

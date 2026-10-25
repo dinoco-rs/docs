@@ -1,5 +1,5 @@
-import ormV2_2_0 from '../jsons/orm/v2.2.0';
-import rekkaV0_0_4 from '../jsons/rekka/v0.0.4';
+import ormV2_2_1 from '../jsons/orm/v2.2.1';
+import rekkaV0_0_5 from '../jsons/rekka/v0.0.5';
 
 import type { DocsVersion } from '../jsons/types';
 import type { DocsLocale } from './locales';
@@ -47,7 +47,7 @@ export const PRODUCTS: Product[] = [
 			'en-us': 'One schema, typed models, and real SQL migrations for PostgreSQL, MySQL, and SQLite.',
 			'pt-br': 'Um schema, models tipados e migrations em SQL de verdade para PostgreSQL, MySQL e SQLite.',
 		},
-		versions: [ormV2_2_0],
+		versions: [ormV2_2_1],
 	},
 	{
 		accent: 'rekka',
@@ -70,7 +70,7 @@ export const PRODUCTS: Product[] = [
 			'en-us': 'Job queues, recurring workers, and a typed cache on top of the Redis you already run.',
 			'pt-br': 'Filas de jobs, workers recorrentes e cache tipado sobre o Redis que você já usa.',
 		},
-		versions: [rekkaV0_0_4],
+		versions: [rekkaV0_0_5],
 	},
 ];
 
