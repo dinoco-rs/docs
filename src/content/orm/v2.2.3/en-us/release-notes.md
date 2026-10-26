@@ -1,8 +1,12 @@
-# Dinoco v2.2.2
+# Dinoco v2.2.3
 
 This page tracks what changed release over release. Each entry links to the page that documents the feature in depth — treat this as a changelog, not the primary reference.
 
-## v2.2.2
+## v2.2.3
+
+- **Seeds run on the runtime `#[tokio::main]` builds.** `dinoco seed` ran the seed on a single-threaded Tokio runtime, so application code it called that uses `tokio::task::block_in_place`, or blocks on a task it spawned, panicked or hung. It now runs on the multi-threaded runtime, as the runner before v2.2.2 did. See [How seeds run](/en-us/docs/orm/tooling/seeds#how-seeds-run).
+- **`dinoco seed` builds only the package it runs in.** It selects the package in the current directory and only its library and binaries, so at the root of a workspace with `default-members` it no longer builds the other members, and a package with neither a library nor a binary gets an error instead of a run of its integration tests and doctests.
+- Upgrading: nothing changes for existing code.
 
 - **Seeds see the whole crate.** `dinoco seed` compiled the seed in a separate runner with only `dinoco/mod.rs`, so `use crate::{...}` found the models and nothing else: helpers, constants and anything the crate root imports failed with `unresolved import`. The seed now runs inside your application's crate, through a test that the generated `dinoco/mod.rs` declares, so `crate::...` resolves exactly as it does in the application, with its dependencies. See [How seeds run](/en-us/docs/orm/tooling/seeds#how-seeds-run).
 - Upgrading: run `dinoco models generate` once so `dinoco/mod.rs` declares the seed's test; until then `dinoco seed` asks for it. The crate is compiled with `cfg(test)` to run the seed, so the generated `connect()` returns the test database there: use the `client` the seed receives.

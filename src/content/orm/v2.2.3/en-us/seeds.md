@@ -101,7 +101,7 @@ Use one of the two layouts: Rust rejects a module with both `seed.rs` and `seed/
 
 ## How seeds run
 
-A seed is part of your application's crate, so `dinoco seed` runs it there: Cargo compiles the crate's library and binaries for their tests, in your project's target directory and with your dependencies, and runs only the `__dinoco_seed` test of `dinoco/mod.rs`, which connects to the workspace's database and calls `seed`. Your `main` never runs, and neither do your other tests. It needs a Rust toolchain wherever `dinoco seed` runs; the first run builds the crate for tests, and later runs only what changed.
+A seed is part of your application's crate, so `dinoco seed` runs it there: Cargo compiles the crate's library and binaries for their tests, in your project's target directory and with your dependencies, and runs only the `__dinoco_seed` test of `dinoco/mod.rs`, which connects to the workspace's database and calls `seed` on the multi-threaded Tokio runtime that `#[tokio::main]` builds. Your `main` never runs, and neither do your other tests. Only the package in the current directory is built, even at the root of a workspace. It needs a Rust toolchain wherever `dinoco seed` runs; the first run builds the crate for tests, and later runs only what changed.
 
 Because it is a test build, the crate is compiled with `cfg(test)`: the generated `connect()` returns the in-memory [test database](/en-us/docs/orm/orm/testing) there, so a seed uses the `client` it receives instead of calling `connect()` itself. A plain `cargo test -- --ignored` skips the seed: it runs only under `dinoco seed`.
 

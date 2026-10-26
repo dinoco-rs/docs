@@ -1,8 +1,12 @@
-# Dinoco v2.2.2
+# Dinoco v2.2.3
 
 Esta página acompanha o que mudou release a release. Cada item linka para a página que documenta a funcionalidade em profundidade — trate isto como um changelog, não como a referência principal.
 
-## v2.2.2
+## v2.2.3
+
+- **Seeds rodam no runtime que o `#[tokio::main]` monta.** O `dinoco seed` rodava a seed num runtime Tokio de uma thread só, então código da aplicação chamado por ela que usa `tokio::task::block_in_place`, ou bloqueia esperando uma task que criou, entrava em panic ou travava. Agora ela roda no runtime multi-thread, como o runner de antes da v2.2.2 fazia. Veja [Como as seeds rodam](/pt-br/docs/orm/tooling/seeds#como-as-seeds-rodam).
+- **O `dinoco seed` compila só o pacote em que roda.** Ele seleciona o pacote do diretório atual e só a library e os binários dele, então na raiz de um workspace com `default-members` ele não compila mais os outros membros, e um pacote sem library nem binário recebe um erro em vez de rodar os testes de integração e doctests dele.
+- Atualizando: nada muda para o código existente.
 
 - **Seeds enxergam o crate inteiro.** O `dinoco seed` compilava a seed num runner separado só com o `dinoco/mod.rs`, então `use crate::{...}` encontrava os models e mais nada: helpers, constantes e tudo o que a raiz do crate importa falhavam com `unresolved import`. Agora a seed roda dentro do crate da sua aplicação, por um teste que o `dinoco/mod.rs` gerado declara, então `crate::...` resolve exatamente como na aplicação, com as dependências dela. Veja [Como as seeds rodam](/pt-br/docs/orm/tooling/seeds#como-as-seeds-rodam).
 - Atualizando: rode `dinoco models generate` uma vez para que o `dinoco/mod.rs` declare o teste da seed; até lá o `dinoco seed` pede isso. O crate é compilado com `cfg(test)` para rodar a seed, então ali o `connect()` gerado devolve o banco de teste: use o `client` que a seed recebe.
