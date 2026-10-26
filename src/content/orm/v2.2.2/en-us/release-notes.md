@@ -1,6 +1,11 @@
-# Dinoco v2.2.1
+# Dinoco v2.2.2
 
 This page tracks what changed release over release. Each entry links to the page that documents the feature in depth — treat this as a changelog, not the primary reference.
+
+## v2.2.2
+
+- **Seeds see the whole crate.** `dinoco seed` compiled the seed in a separate runner with only `dinoco/mod.rs`, so `use crate::{...}` found the models and nothing else: helpers, constants and anything the crate root imports failed with `unresolved import`. The seed now runs inside your application's crate, through a test that the generated `dinoco/mod.rs` declares, so `crate::...` resolves exactly as it does in the application, with its dependencies. See [How seeds run](/en-us/docs/orm/tooling/seeds#how-seeds-run).
+- Upgrading: run `dinoco models generate` once so `dinoco/mod.rs` declares the seed's test; until then `dinoco seed` asks for it. The crate is compiled with `cfg(test)` to run the seed, so the generated `connect()` returns the test database there: use the `client` the seed receives.
 
 ## v2.2.1
 

@@ -396,7 +396,7 @@ Assim o arquivo faz parte da árvore de módulos da sua aplicação: o rust-anal
 > [!WARNING]
 > Um transform escrito para a v2.0.3/v2.0.4 importa `dinoco_codegen::prelude::*`. Depois que o `dinoco/mod.rs` é regenerado, essa linha deixa de compilar na sua aplicação, a menos que ela também dependa de `dinoco_codegen`. Troque por `use dinoco::codegen::*;`.
 
-Ele precisa de uma toolchain Rust onde `dinoco models generate` roda, compila por um projeto gerado em `dinoco/.runner/` (ignorado pelo Git sozinho) e imprime os erros do Cargo se o `transform.rs` não compilar. Esse projeto compila no target directory do seu projeto com uma cópia do seu `Cargo.lock`, então reaproveita as dependências que a sua aplicação já compilou em vez de compilar o Dinoco e os drivers de novo; o mesmo runner roda as [seeds](/pt-br/docs/orm/tooling/seeds). Um transform que falha interrompe a geração; o Dinoco nunca volta para a saída sem transformação.
+Ele precisa de uma toolchain Rust onde `dinoco models generate` roda, compila por um projeto gerado em `dinoco/.runner/` (ignorado pelo Git sozinho) e imprime os erros do Cargo se o `transform.rs` não compilar. Esse projeto compila no target directory do seu projeto com uma cópia do seu `Cargo.lock`, então reaproveita as dependências que a sua aplicação já compilou em vez de compilar o Dinoco e os drivers de novo. As [seeds](/pt-br/docs/orm/tooling/seeds) rodam dentro do crate da sua aplicação. Um transform que falha interrompe a geração; o Dinoco nunca volta para a saída sem transformação.
 
 ## O código gerado continua gerado
 

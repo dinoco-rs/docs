@@ -396,7 +396,7 @@ So the file is part of your application's module tree: rust-analyzer gives you c
 > [!WARNING]
 > A transform written for v2.0.3/v2.0.4 imports `dinoco_codegen::prelude::*`. Once `dinoco/mod.rs` is regenerated, that line fails to compile in your application unless it also depends on `dinoco_codegen`. Replace it with `use dinoco::codegen::*;`.
 
-It needs a Rust toolchain wherever `dinoco models generate` runs, builds through a generated project in `dinoco/.runner/` (self-ignored by Git), and prints Cargo's errors if `transform.rs` does not compile. That project builds into your project's target directory with a copy of your `Cargo.lock`, so it reuses the dependencies your application already compiled instead of building Dinoco and its drivers again; the same runner runs [seeds](/en-us/docs/orm/tooling/seeds). A failing transform stops the generation; Dinoco never falls back to untransformed output.
+It needs a Rust toolchain wherever `dinoco models generate` runs, builds through a generated project in `dinoco/.runner/` (self-ignored by Git), and prints Cargo's errors if `transform.rs` does not compile. That project builds into your project's target directory with a copy of your `Cargo.lock`, so it reuses the dependencies your application already compiled instead of building Dinoco and its drivers again. [Seeds](/en-us/docs/orm/tooling/seeds) run inside your application's crate instead. A failing transform stops the generation; Dinoco never falls back to untransformed output.
 
 ## Generated output is still generated
 

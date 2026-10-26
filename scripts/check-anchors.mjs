@@ -3,7 +3,7 @@ import path from 'node:path';
 import process from 'node:process';
 
 // Published version of each product; keep in sync with `src/lib/products.ts`.
-const products = { orm: 'v2.2.1', rekka: 'v0.0.5' };
+const products = { orm: 'v2.2.2', rekka: 'v0.0.5' };
 const locales = ['en-us', 'pt-br'];
 const contentRoot = path.join(process.cwd(), 'src', 'content');
 const navigationRoot = path.join(process.cwd(), 'src', 'jsons');

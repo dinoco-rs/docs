@@ -26,11 +26,18 @@ pub async fn seed(client: &DinocoClient) -> dinoco::anyhow::Result<()> {
 }
 ```
 
-The seed lives inside the generated `dinoco` module, so `super::models::*` (or `super::*`) brings the models in. After creating the file, run `dinoco models generate` once: the generated `dinoco/mod.rs` then declares it,
+The seed lives inside the generated `dinoco` module, so `super::models::*` (or `super::*`) brings the models in, and `crate::...` reaches the rest of your application: its helpers, constants and anything its crate root imports. After creating the file, run `dinoco models generate` once: the generated `dinoco/mod.rs` then declares it,
 
 ```rust
 /// `dinoco/seed.rs` (or `dinoco/seed/mod.rs`), run by `dinoco seed`.
 pub mod seed;
+
+#[cfg(test)]
+#[test]
+#[ignore = "run by `dinoco seed`"]
+fn __dinoco_seed() -> ::dinoco::anyhow::Result<()> {
+    ::dinoco::__run_seed(|client| async move { seed::seed(&client).await })
+}
 ```
 
 so rust-analyzer and `cargo check` analyze the seed with the rest of the application, and a seed that no longer matches the models fails to compile there first. Your application can also call `dinoco::seed::seed(&client)` itself, for example in tests.
@@ -94,6 +101,8 @@ Use one of the two layouts: Rust rejects a module with both `seed.rs` and `seed/
 
 ## How seeds run
 
-Like [`dinoco/transform.rs`](/en-us/docs/orm/guide/transforms#where-the-transform-runs), seeds are compiled by the CLI through a small generated project in `dinoco/.runner/` (ignored by Git), so they need a Rust toolchain wherever `dinoco seed` runs. That project builds into your project's target directory with a copy of your `Cargo.lock`, so it reuses the dependencies your application already compiled: the first run builds only what differs (Dinoco with all its features, for example), and later runs only the seed.
+A seed is part of your application's crate, so `dinoco seed` runs it there: Cargo compiles the crate's library and binaries for their tests, in your project's target directory and with your dependencies, and runs only the `__dinoco_seed` test of `dinoco/mod.rs`, which connects to the workspace's database and calls `seed`. Your `main` never runs, and neither do your other tests. It needs a Rust toolchain wherever `dinoco seed` runs; the first run builds the crate for tests, and later runs only what changed.
 
-The runner compiles `dinoco/mod.rs`, the models, and the seed. A seed can use the models, `dinoco`, and `std`, but not the rest of your application (`crate::...` modules) or other crates.
+Because it is a test build, the crate is compiled with `cfg(test)`: the generated `connect()` returns the in-memory [test database](/en-us/docs/orm/orm/testing) there, so a seed uses the `client` it receives instead of calling `connect()` itself. A plain `cargo test -- --ignored` skips the seed: it runs only under `dinoco seed`.
+
+The crate root must include `dinoco/mod.rs` (`#[path = "../dinoco/mod.rs"] mod dinoco;`, under any module name), or `dinoco seed` reports that the seed never ran.

@@ -26,11 +26,18 @@ pub async fn seed(client: &DinocoClient) -> dinoco::anyhow::Result<()> {
 }
 ```
 
-A seed fica dentro do módulo `dinoco` gerado, então `super::models::*` (ou `super::*`) traz os models. Depois de criar o arquivo, rode `dinoco models generate` uma vez: o `dinoco/mod.rs` gerado passa a declará-lo,
+A seed fica dentro do módulo `dinoco` gerado, então `super::models::*` (ou `super::*`) traz os models, e `crate::...` alcança o resto da sua aplicação: helpers, constantes e tudo o que a raiz do crate importa. Depois de criar o arquivo, rode `dinoco models generate` uma vez: o `dinoco/mod.rs` gerado passa a declará-lo,
 
 ```rust
 /// `dinoco/seed.rs` (or `dinoco/seed/mod.rs`), run by `dinoco seed`.
 pub mod seed;
+
+#[cfg(test)]
+#[test]
+#[ignore = "run by `dinoco seed`"]
+fn __dinoco_seed() -> ::dinoco::anyhow::Result<()> {
+    ::dinoco::__run_seed(|client| async move { seed::seed(&client).await })
+}
 ```
 
 então o rust-analyzer e o `cargo check` analisam a seed junto com o resto da aplicação, e uma seed que não bate mais com os models falha a compilação ali primeiro. A sua aplicação também pode chamar `dinoco::seed::seed(&client)` ela mesma, por exemplo em testes.
@@ -94,6 +101,8 @@ Use um dos dois layouts: o Rust rejeita um módulo com `seed.rs` e `seed/mod.rs`
 
 ## Como as seeds rodam
 
-Como o [`dinoco/transform.rs`](/pt-br/docs/orm/guide/transforms#onde-o-transform-roda), as seeds são compiladas pela CLI num pequeno projeto gerado em `dinoco/.runner/` (ignorado pelo Git), então elas precisam de uma toolchain Rust onde o `dinoco seed` roda. Esse projeto compila no target directory do seu projeto com uma cópia do seu `Cargo.lock`, então ele reaproveita as dependências que a sua aplicação já compilou: a primeira execução compila só o que difere (o Dinoco com todas as features, por exemplo), e as seguintes só a seed.
+A seed faz parte do crate da sua aplicação, então o `dinoco seed` roda ela ali: o Cargo compila a library e os binários do crate para os testes deles, no target directory do seu projeto e com as suas dependências, e roda só o teste `__dinoco_seed` do `dinoco/mod.rs`, que conecta no banco do workspace e chama a `seed`. A sua `main` nunca roda, nem os seus outros testes. Ele precisa de uma toolchain Rust onde o `dinoco seed` roda; a primeira execução compila o crate para testes, e as seguintes só o que mudou.
 
-O runner compila o `dinoco/mod.rs`, os models e a seed. Uma seed pode usar os models, o `dinoco` e a `std`, mas não o resto da sua aplicação (módulos `crate::...`) nem outros crates.
+Por ser uma build de teste, o crate é compilado com `cfg(test)`: ali o `connect()` gerado devolve o [banco de teste](/pt-br/docs/orm/orm/testing) em memória, então a seed usa o `client` que recebe em vez de chamar `connect()` ela mesma. Um `cargo test -- --ignored` comum pula a seed: ela só roda pelo `dinoco seed`.
+
+A raiz do crate precisa incluir o `dinoco/mod.rs` (`#[path = "../dinoco/mod.rs"] mod dinoco;`, com qualquer nome de módulo), senão o `dinoco seed` avisa que a seed nunca rodou.
