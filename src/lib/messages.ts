@@ -16,7 +16,7 @@ const messages = {
 			support: 'Support',
 		},
 		announcement: {
-			text: 'Rekka v0.0.5 is out: large handlers no longer overflow the stack, and startup flags them.',
+			text: 'Rekka v0.0.6 is out: workflows that chain handlers step by step, and JobHandler is now an extractor.',
 			cta: 'Read the docs',
 		},
 		hero: {
@@ -164,7 +164,7 @@ const messages = {
 			support: 'Apoiar',
 		},
 		announcement: {
-			text: 'O Rekka v0.0.5 chegou: handlers grandes não estouram mais o stack, e o start avisa sobre eles.',
+			text: 'O Rekka v0.0.6 chegou: workflows que encadeiam handlers passo a passo, e o JobHandler agora é um extractor.',
 			cta: 'Ler a documentação',
 		},
 		hero: {

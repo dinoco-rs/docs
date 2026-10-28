@@ -71,9 +71,9 @@ pub struct WelcomeEmail {
 }
 
 pub async fn send_welcome(
-    handler: JobHandler,
     job: WelcomeEmail,
     RekkaData(db): RekkaData<DinocoClient>,
+    handler: JobHandler,
 ) -> anyhow::Result<()> {
     let user = find_first::<User>()
         .where_(|x| x.id.eq(job.user_id.as_str()))
