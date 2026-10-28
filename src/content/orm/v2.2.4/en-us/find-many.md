@@ -53,6 +53,92 @@ let page = dinoco::find_many::<Account>()
 > [!WARNING]
 > Offset pagination (`take`/`skip`) only produces a stable, non-overlapping sequence of pages when paired with a stable `order_by`. Paginate without ordering — or order by a column with ties, like a status field — and rows can appear on two pages or vanish between them as the underlying data changes. End the order with a unique column, such as `.order_by(|x| x.id.asc())`, to break every tie.
 
+## Count with the rows
+
+A paginated list shows the page and how many rows there are in all. `.count()` adds a count of the same model to the find: `execute` returns `(Vec<M>, M::Count)`, and the count uses the find's filters but ignores `order_by`, `take`, and `skip`:
+
+```rust
+let (accounts, count) = dinoco::find_many::<Account>()
+    .where_(|account| account.active.eq(true))
+    .order_by(|account| account.id.asc())
+    .take(25)
+    .skip(50)
+    .count()
+    .execute(&client)
+    .await?;
+
+println!("{} of {} active accounts", accounts.len(), count.total);
+```
+
+`count` is the [generated count type](/en-us/docs/orm/orm/count#generated-count-types), `AccountCount`, the one `count::<Account>()` returns. The count and the find run as two statements on the same connection, the count first. When the page starts at or past the last row (`total` at or below `skip`, which includes no row matching at all), the total already says the page is empty, so the find doesn't run.
+
+The filters are read when the query runs, so a `where_` after `.count()` counts too. Every other stage works before or after it (`select`, `includes`, `order_by`, `take`, `skip`, `read_in_primary`), `.transform(...)` after it maps the rows and returns the count unchanged as `(Vec<R>, M::Count)`, and `.execute(tx)` runs both statements in the [transaction](/en-us/docs/orm/orm/transactions). `.pluck(...)` has no counting form.
+
+`.count()`, `.count_transform(...)`, `.count_custom(...)`, and `.count_custom_complex(...)` each replace the one called before; only the last one runs.
+
+### Change the count's filters
+
+`count_transform` starts from the find's filters and changes them for the count only. Its closure receives a [`count::<M>()`](/en-us/docs/orm/orm/count) builder that holds the find's filters as `where_` calls, and returns it: `remove` drops the conditions on a field, `where_` and `where_complex` add filters, and `includes` asks for [relation counts](/en-us/docs/orm/orm/count#count-relations). The find keeps its own filters:
+
+```rust
+// The active accounts of the page, and every account of the domain, active or not.
+let (accounts, count) = dinoco::find_many::<Account>()
+    .where_(|account| account.active.eq(true))
+    .where_(|account| account.email.ends_with("@dinoco.io"))
+    .take(25)
+    .count_transform(|count| count.remove(|account| account.active))
+    .execute(&client)
+    .await?;
+
+// The same page, counting the inactive accounts of the domain instead.
+let (accounts, count) = dinoco::find_many::<Account>()
+    .where_(|account| account.active.eq(true))
+    .where_(|account| account.email.ends_with("@dinoco.io"))
+    .take(25)
+    .count_transform(|count| count.remove(|account| account.active).where_(|account| account.active.eq(false)))
+    .execute(&client)
+    .await?;
+```
+
+`remove` never makes the count narrower:
+
+- every `where_` that filters on the field goes, and the others stay;
+- in a [where complex](/en-us/docs/orm/orm/where-complex) tree, the members of an `and` group are removed one by one, and an `or` or `not` group that mentions the field goes as a whole;
+- a relation field removes its [relation filters](/en-us/docs/orm/orm/relation-filters) (`count.remove(|account| account.sessions)`), a many-to-many key field its membership filters, and any field of an `@@fulltexts` group the search on that group;
+- the conditions inside a relation filter are on the related model, so `remove(|account| account.id)` leaves `account.sessions.where_(|session| session.id.eq(...))` in place.
+
+As on every builder, `where_complex` replaces every filter before it, the find's included, and makes later `where_` calls be ignored.
+
+### Count with filters of its own
+
+`count_custom` ignores the find's filters: its closure receives an empty `count::<M>()` builder. `count_custom_complex` takes a where complex tree directly, the way `where_complex` does:
+
+```rust
+// A page of active accounts, and how many accounts are inactive.
+let (accounts, count) = dinoco::find_many::<Account>()
+    .where_(|account| account.active.eq(true))
+    .take(25)
+    .count_custom(|count| count.where_(|account| account.active.eq(false)))
+    .execute(&client)
+    .await?;
+
+let (accounts, count) = dinoco::find_many::<Account>()
+    .where_(|account| account.active.eq(true))
+    .take(25)
+    .count_custom_complex(|account, m| m.or(account.active.eq(false), account.email.ends_with("@example.com")))
+    .execute(&client)
+    .await?;
+
+// Every account, with how many sessions they have, next to the page.
+let (accounts, count) = dinoco::find_many::<Account>()
+    .take(25)
+    .count_custom(|count| count.includes(|account| account.sessions()))
+    .execute(&client)
+    .await?;
+```
+
+A count with other filters than the find's says nothing about the find's rows, so with `count_transform` and `count_custom` the find always runs.
+
 ## Full-text search
 
 Any field marked `@fulltext` exposes a matching method:

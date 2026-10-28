@@ -1,4 +1,4 @@
-import ormV2_2_3 from '../jsons/orm/v2.2.3';
+import ormV2_2_4 from '../jsons/orm/v2.2.4';
 import rekkaV0_0_5 from '../jsons/rekka/v0.0.5';
 
 import type { DocsVersion } from '../jsons/types';
@@ -47,7 +47,7 @@ export const PRODUCTS: Product[] = [
 			'en-us': 'One schema, typed models, and real SQL migrations for PostgreSQL, MySQL, and SQLite.',
 			'pt-br': 'Um schema, models tipados e migrations em SQL de verdade para PostgreSQL, MySQL e SQLite.',
 		},
-		versions: [ormV2_2_3],
+		versions: [ormV2_2_4],
 	},
 	{
 		accent: 'rekka',

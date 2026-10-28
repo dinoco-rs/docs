@@ -81,6 +81,10 @@ let tokens = dinoco::transaction(&client, |tx| async move {
 
 `.execute(...)` takes the same executors as `find_many`: `&client`, an `Arc` of the client, or `tx`.
 
+## Count next to a find
+
+To get a page of rows and a count in one call, add `.count()` to a `find_many`: `execute` returns `(Vec<M>, M::Count)`, counted with the find's filters. `.count_transform(...)` and `.count_custom(...)` hand their closure this same builder, so `where_`, `where_complex`, and `includes` work there as they do here, and `remove(|x| x.field)` drops the conditions on a field from the filters the find passed in. See [Count with the rows](/en-us/docs/orm/orm/find-many#count-with-the-rows).
+
 ## Generated count types
 
 For an entity with relation fields, the derive generates a struct conceptually shaped like this:

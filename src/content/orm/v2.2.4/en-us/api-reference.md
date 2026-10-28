@@ -60,11 +60,13 @@ pub struct UserSummary {
 | Builder | Chainable methods | Return from `execute` |
 | --- | --- | --- |
 | `find_first::<M>()` | `where_`, `where_complex`, `select`, `includes`, `order_by`, `read_in_primary` | `Option<M>` or `Option<S>` |
-| `find_many::<M>()` | `where_`, `where_complex`, `select`, `includes`, `pluck`, `transform`, `order_by`, `take`, `skip`, `read_in_primary` | `Vec<M>` or `Vec<S>`; `Vec<T>` from `pluck(field)`, `T` from `pluck(aggregate)`, `Vec<(K, T)>` after `.group_by(...)` |
-| `count::<M>()` | `where_`, `where_complex`, `includes` | `M::Count` |
+| `find_many::<M>()` | `where_`, `where_complex`, `select`, `includes`, `pluck`, `transform`, `order_by`, `take`, `skip`, `read_in_primary`, `count`, `count_transform`, `count_custom`, `count_custom_complex` | `Vec<M>` or `Vec<S>`; `Vec<T>` from `pluck(field)`, `T` from `pluck(aggregate)`, `Vec<(K, T)>` after `.group_by(...)`; `(Vec<M>, M::Count)` after a `count` method |
+| `count::<M>()` | `where_`, `where_complex`, `includes`, `remove` | `M::Count` |
 | `exists::<M>()` | `where_`, `where_complex`, `read_in_primary` | `bool` |
 
 `find_many(...).pluck(...)` takes a field or an [aggregate](#aggregate-methods), and an aggregate takes `.group_by(...)`. See [Aggregate a column](/en-us/docs/orm/orm/find-many#aggregate-a-column) and [Group the aggregate](/en-us/docs/orm/orm/find-many#group-the-aggregate).
+
+`find_many(...).count()` also counts the rows the find's filters match, without `order_by`, `take`, or `skip`. `count_transform(|count| ...)` changes those filters for the count only, starting from a `count::<M>()` builder that holds them (`remove(|x| x.field)` drops a field's conditions), and `count_custom(|count| ...)`/`count_custom_complex(|x, m| ...)` count with filters of their own. The last `count` method called is the one that runs. See [Count with the rows](/en-us/docs/orm/orm/find-many#count-with-the-rows).
 
 Every read builder executes against `&client` or against the `tx` of a transaction closure. Through `tx` it reads on the transaction's connection and sees its uncommitted writes, relation counts and includes included.
 
@@ -128,13 +130,14 @@ For endpoints that already exist, use `.connect(value)`/`.disconnect(value)` fro
 | `Integer`/`Float` (filter) | `between` |
 | `Integer`/`Float` (update, optional included) | `increment`, `decrement`, `multiply`, `divide` |
 | Relation field (filter) | `where_`, `where_complex`, `none`, `none_complex`, `every`, `every_complex`, `exists`, `exists_complex`, `not_exists`, `not_exists_complex` |
+| List relation field (filter) | `empty`, `not_empty`, plus every relation field method |
 | Ordering | `asc`, `desc` |
 
 `fulltext` works in `find_first`, `find_many`, `find_and_update`, one/many include builders, and inside `where_complex` trees — including when `find_and_update` runs through a transaction context. Calling it on any member of an `@@fulltexts` group searches the whole declared group, not just that field. The method simply doesn't exist on a `String` without `@fulltext`.
 
 `where_complex(|x, m| ...)` provides `m.and`, `m.or`, `m.or_many`, and `m.not`. The moment it's used, every plain `where_` on that same builder is ignored. See [Filters](/en-us/docs/orm/orm/filters) and [Where complex](/en-us/docs/orm/orm/where-complex).
 
-Relation fields filter by related rows without loading them, through a correlated `EXISTS` subquery: `where_`/`where_complex` keep rows with a matching related row, `none`/`none_complex` rows without one, `every`/`every_complex` rows whose related rows all match, `exists`/`not_exists` test for any related row, and `exists_complex`/`not_exists_complex` for one matching a tree (the same filters as `where_complex`/`none_complex`). Their callbacks receive the related model's `Where`, so they nest, and they work in every builder that takes a `where_`. See [Relation filters](/en-us/docs/orm/orm/relation-filters).
+Relation fields filter by related rows without loading them, through a correlated `EXISTS` subquery: `where_`/`where_complex` keep rows with a matching related row, `none`/`none_complex` rows without one, `every`/`every_complex` rows whose related rows all match, `exists`/`not_exists` test for any related row (`not_empty`/`empty` on list relations), and `exists_complex`/`not_exists_complex` for one matching a tree (the same filters as `where_complex`/`none_complex`). Their callbacks receive the related model's `Where`, so they nest, and they work in every builder that takes a `where_`. See [Relation filters](/en-us/docs/orm/orm/relation-filters).
 
 ## Aggregate methods
 

@@ -87,6 +87,8 @@ let transaction = dinoco::find_first::<Transaction>()
 | `exists_complex(...)` | têm pelo menos uma row relacionada que bate com uma árvore de where complex — o mesmo filtro que `where_complex` | `EXISTS (...)` |
 | `not_exists()` | não têm nenhuma row relacionada | `NOT EXISTS (...)` |
 | `not_exists_complex(...)` | não têm nenhuma row relacionada que bate com uma árvore de where complex — o mesmo filtro que `none_complex` | `NOT EXISTS (...)` |
+| `empty()` | só em relações de lista: não têm nenhuma row relacionada — o mesmo filtro que `not_exists()` | `NOT EXISTS (...)` |
+| `not_empty()` | só em relações de lista: têm pelo menos uma row relacionada — o mesmo filtro que `exists()` | `EXISTS (...)` |
 
 ```rust
 // Transactions com algum item estornado.
@@ -107,7 +109,7 @@ dinoco::find_many::<Transaction>()
     .where_(|t| t.items.every_complex(|item, m| m.or(item.refunded.eq(true), item.note.eq("gift"))));
 
 // Transactions com pelo menos um item / sem payout.
-dinoco::find_many::<Transaction>().where_(|t| t.items.exists());
+dinoco::find_many::<Transaction>().where_(|t| t.items.not_empty());
 dinoco::find_many::<Transaction>().where_(|t| t.payout.not_exists());
 
 // Transactions com / sem um payout Ted ou Boleto.
@@ -122,13 +124,53 @@ dinoco::find_many::<Transaction>().where_(|t| {
 O `exists_complex` e o `not_exists_complex` geram exatamente o mesmo SQL que o `where_complex` e o `none_complex`. Use o nome que fica mais claro ao lado do `exists()` e do `not_exists()`.
 
 > [!NOTE]
-> `every` e `none` são verdadeiros para uma row sem nenhuma relacionada. Adicione `.exists()` quando "todos os itens foram estornados" também precisar de pelo menos um item: `.where_(|t| t.items.every(...)).where_(|t| t.items.exists())`.
+> `every` e `none` são verdadeiros para uma row sem nenhuma relacionada. Adicione `.not_empty()` quando "todos os itens foram estornados" também precisar de pelo menos um item: `.where_(|t| t.items.every(...)).where_(|t| t.items.not_empty())`.
 
 `every` só conta uma row relacionada como compatível quando a condição dela é `TRUE`. Uma comparação contra uma coluna `NULL` não é nem verdadeira nem falsa em SQL, então um item sem `note` **não** satisfaz `every(|item| item.note.eq("gift"))` — a mesma row também não voltaria em `find_many::<Item>().where_(|item| item.note.eq("gift"))`.
 
+## Listas vazias e não vazias
+
+Uma relação de lista — one-to-many ou many-to-many, um field `Vec<T>` no model — também tem `empty()` e `not_empty()`, que não recebem callback. O `not_empty()` mantém as rows com pelo menos uma row relacionada, então uma transaction cujo `items` carregaria como lista vazia não volta:
+
+```rust
+let transactions = dinoco::find_many::<Transaction>()
+    .where_(|transaction| transaction.items.not_empty())
+    .execute(&client)
+    .await?;
+```
+
+```sql
+SELECT id, amount, payout_id FROM transaction
+WHERE EXISTS (
+    SELECT 1 FROM item AS __dinoco_relation_1
+    WHERE __dinoco_relation_1.transaction_id = transaction.id
+)
+```
+
+O `empty()` mantém as rows opostas, as que não têm nenhuma row relacionada, com `NOT EXISTS`. Os dois geram exatamente o mesmo SQL que o `exists()` e o `not_exists()`, que todo field de relação continua tendo. Uma relação singular não tem lista para estar vazia, então `transaction.payout.empty()` não compila: use `exists()` e `not_exists()` nela.
+
+```rust
+// Transactions sem nenhum item.
+dinoco::find_many::<Transaction>().where_(|t| t.items.empty());
+
+// Many-to-many e auto-relações: transactions sem tags, e employees sem subordinados.
+dinoco::find_many::<Transaction>().where_(|t| t.tags.empty());
+dinoco::find_many::<Employee>().where_(|employee| employee.reports.empty());
+
+// Payouts com alguma transaction sem itens.
+dinoco::find_many::<Payout>().where_(|payout| payout.transactions.where_(|t| t.items.empty()));
+
+// Transactions com todos os itens estornados e com pelo menos um item.
+dinoco::find_many::<Transaction>()
+    .where_(|t| t.items.every(|item| item.refunded.eq(true)))
+    .where_(|t| t.items.not_empty());
+```
+
+Como todo filtro de relação, eles se aninham, entram em árvores de [where complex](/pt-br/docs/orm/orm/where-complex) (`m.or(t.items.empty(), t.tags.empty())`) e funcionam em todo [builder suportado](#builders-suportados).
+
 ## Todos os formatos de relação
 
-Os mesmos methods existem em todo field de relação; o que "rows relacionadas" significa segue a relação:
+Os mesmos methods existem em todo field de relação, menos `empty` e `not_empty`, que só as relações de lista têm. O que "rows relacionadas" significa segue a relação:
 
 | Relação | Field | Rows relacionadas |
 | --- | --- | --- |
@@ -148,7 +190,7 @@ dinoco::find_many::<Business>().where_(|business| business.systems.where_(|syste
 
 // Self relation: funcionários geridos pela Ana, e gestores sem subordinados.
 dinoco::find_many::<Employee>().where_(|employee| employee.manager.where_(|manager| manager.name.eq("Ana")));
-dinoco::find_many::<Employee>().where_(|employee| employee.reports.not_exists());
+dinoco::find_many::<Employee>().where_(|employee| employee.reports.empty());
 ```
 
 Numa relação singular, `where_` significa "a row relacionada existe e bate com a condição", e `none` significa "não há row relacionada, ou ela não bate" — então `transaction.payout.none(|p| p.method.eq(PayoutMethod::Pix))` também retorna as transactions sem payout.
@@ -199,7 +241,7 @@ let transactions = dinoco::find_many::<Transaction>()
     .where_complex(|t, m| {
         m.and([
             t.amount.gte(100),
-            m.or(t.payout.where_(|payout| payout.method.eq(PayoutMethod::Ted)), t.items.not_exists()),
+            m.or(t.payout.where_(|payout| payout.method.eq(PayoutMethod::Ted)), t.items.empty()),
             m.not(t.items.where_(|item| item.refunded.eq(true))),
         ])
     })

@@ -1,12 +1,21 @@
-# Dinoco v2.2.3
+# Dinoco v2.2.4
 
 Esta página acompanha o que mudou release a release. Cada item linka para a página que documenta a funcionalidade em profundidade — trate isto como um changelog, não como a referência principal.
+
+## v2.2.4
+
+- **`empty()` e `not_empty()` nas relações de lista.** Fields de relação one-to-many e many-to-many recebem dois filtros sem callback: `t.items.empty()` mantém as rows sem nenhuma row relacionada, e `t.items.not_empty()` as rows com pelo menos uma. Eles geram a mesma subquery `NOT EXISTS`/`EXISTS` que o `not_exists()`/`exists()`, que toda relação continua tendo, e funcionam onde qualquer filtro de relação funciona. Relações singulares não os têm, então `t.payout.empty()` não compila. Veja [Listas vazias e não vazias](/pt-br/docs/orm/orm/relation-filters#listas-vazias-e-nao-vazias).
+- **O `find_many` conta junto com as rows.** O `.count()` devolve as rows junto com o tipo de count do model, `(Vec<M>, M::Count)`, contado com os filtros do find e sem `order_by`, `take` nem `skip`: a página e o total que uma lista paginada precisa, numa chamada só. O `.count_transform(|count| ...)` parte dos filtros do find e os muda só para o count, com o novo `remove(|x| x.field)` do builder de count, e o `.count_custom(...)`/`.count_custom_complex(...)` contam com filtros próprios; os três aceitam `includes` para counts de relações. O count roda primeiro, e uma página que começa depois da última row não roda o find. O future é o de um `find_many` comum mais o tipo de count (416 bytes contra 392 na fixture de pagamentos), e não aloca mais do que chamar `find_many` e `count` um depois do outro. Veja [Conte junto com as rows](/pt-br/docs/orm/orm/find-many#conte-junto-com-as-rows).
+- **O `dinoco init` linka para a documentação.** O link que ele mostra no fim apontava para `https://dinoco.io/getting-started`, que não existe. Agora aponta para a [introdução](/pt-br/docs/orm/guide/introduction).
+- Atualizando: nada muda para o código existente. Num `Where` gerado, o field de uma relação de lista agora é um `RelationField<T, ListRelation>`, e `FindMany` e `FindManyTransform` recebem um último parâmetro de tipo para o count (`NoCount` por padrão); só código que escreve esses tipos por extenso precisa do novo parâmetro.
 
 ## v2.2.3
 
 - **Seeds rodam no runtime que o `#[tokio::main]` monta.** O `dinoco seed` rodava a seed num runtime Tokio de uma thread só, então código da aplicação chamado por ela que usa `tokio::task::block_in_place`, ou bloqueia esperando uma task que criou, entrava em panic ou travava. Agora ela roda no runtime multi-thread, como o runner de antes da v2.2.2 fazia. Veja [Como as seeds rodam](/pt-br/docs/orm/tooling/seeds#como-as-seeds-rodam).
 - **O `dinoco seed` compila só o pacote em que roda.** Ele seleciona o pacote do diretório atual e só a library e os binários dele, então na raiz de um workspace com `default-members` ele não compila mais os outros membros, e um pacote sem library nem binário recebe um erro em vez de rodar os testes de integração e doctests dele.
 - Atualizando: nada muda para o código existente.
+
+## v2.2.2
 
 - **Seeds enxergam o crate inteiro.** O `dinoco seed` compilava a seed num runner separado só com o `dinoco/mod.rs`, então `use crate::{...}` encontrava os models e mais nada: helpers, constantes e tudo o que a raiz do crate importa falhavam com `unresolved import`. Agora a seed roda dentro do crate da sua aplicação, por um teste que o `dinoco/mod.rs` gerado declara, então `crate::...` resolve exatamente como na aplicação, com as dependências dela. Veja [Como as seeds rodam](/pt-br/docs/orm/tooling/seeds#como-as-seeds-rodam).
 - Atualizando: rode `dinoco models generate` uma vez para que o `dinoco/mod.rs` declare o teste da seed; até lá o `dinoco seed` pede isso. O crate é compilado com `cfg(test)` para rodar a seed, então ali o `connect()` gerado devolve o banco de teste: use o `client` que a seed recebe.

@@ -60,11 +60,13 @@ pub struct UserSummary {
 | Builder | Methods encadeáveis | Retorno de `execute` |
 | --- | --- | --- |
 | `find_first::<M>()` | `where_`, `where_complex`, `select`, `includes`, `order_by`, `read_in_primary` | `Option<M>` ou `Option<S>` |
-| `find_many::<M>()` | `where_`, `where_complex`, `select`, `includes`, `pluck`, `transform`, `order_by`, `take`, `skip`, `read_in_primary` | `Vec<M>` ou `Vec<S>`; `Vec<T>` com `pluck(field)`, `T` com `pluck(agregação)`, `Vec<(K, T)>` depois de `.group_by(...)` |
-| `count::<M>()` | `where_`, `where_complex`, `includes` | `M::Count` |
+| `find_many::<M>()` | `where_`, `where_complex`, `select`, `includes`, `pluck`, `transform`, `order_by`, `take`, `skip`, `read_in_primary`, `count`, `count_transform`, `count_custom`, `count_custom_complex` | `Vec<M>` ou `Vec<S>`; `Vec<T>` com `pluck(field)`, `T` com `pluck(agregação)`, `Vec<(K, T)>` depois de `.group_by(...)`; `(Vec<M>, M::Count)` depois de um method de `count` |
+| `count::<M>()` | `where_`, `where_complex`, `includes`, `remove` | `M::Count` |
 | `exists::<M>()` | `where_`, `where_complex`, `read_in_primary` | `bool` |
 
 `find_many(...).pluck(...)` aceita um field ou uma [agregação](#methods-de-agregacao), e uma agregação aceita `.group_by(...)`. Veja [Agregue uma coluna](/pt-br/docs/orm/orm/find-many#agregue-uma-coluna) e [Agrupe a agregação](/pt-br/docs/orm/orm/find-many#agrupe-a-agregacao).
+
+`find_many(...).count()` também conta as rows que os filtros do find selecionam, sem `order_by`, `take` nem `skip`. O `count_transform(|count| ...)` muda esses filtros só para o count, partindo de um builder de `count::<M>()` que os contém (`remove(|x| x.field)` tira as condições de um field), e `count_custom(|count| ...)`/`count_custom_complex(|x, m| ...)` contam com filtros próprios. O último method de `count` chamado é o que roda. Veja [Conte junto com as rows](/pt-br/docs/orm/orm/find-many#conte-junto-com-as-rows).
 
 Todo builder de leitura executa contra `&client` ou contra o `tx` de uma closure de transaction. Pelo `tx`, ele lê na conexão da transaction e enxerga seus writes ainda não commitados, incluindo counts de relação e includes.
 
@@ -128,13 +130,14 @@ Para endpoints que já existem, use `.connect(value)`/`.disconnect(value)` a par
 | `Integer`/`Float` (filtro) | `between` |
 | `Integer`/`Float` (update, opcionais inclusos) | `increment`, `decrement`, `multiply`, `divide` |
 | Field de relação (filtro) | `where_`, `where_complex`, `none`, `none_complex`, `every`, `every_complex`, `exists`, `exists_complex`, `not_exists`, `not_exists_complex` |
+| Field de relação de lista (filtro) | `empty`, `not_empty`, mais todo method de field de relação |
 | Ordenação | `asc`, `desc` |
 
 `fulltext` funciona em `find_first`, `find_many`, `find_and_update`, builders de include one/many, e dentro de árvores `where_complex` — inclusive quando `find_and_update` roda por um contexto de transaction. Chamá-lo em qualquer membro de um grupo `@@fulltexts` pesquisa o grupo declarado inteiro, não só aquele field. O method simplesmente não existe numa `String` sem `@fulltext`.
 
 `where_complex(|x, m| ...)` fornece `m.and`, `m.or`, `m.or_many` e `m.not`. No momento em que é usado, todo `where_` comum nesse mesmo builder é ignorado. Veja [Filtros](/pt-br/docs/orm/orm/filters) e [Where complex](/pt-br/docs/orm/orm/where-complex).
 
-Fields de relação filtram pelas rows relacionadas sem carregá-las, com uma subquery `EXISTS` correlacionada: `where_`/`where_complex` mantêm rows com alguma relacionada compatível, `none`/`none_complex` rows sem nenhuma, `every`/`every_complex` rows cujas relacionadas batem todas, `exists`/`not_exists` testam se há qualquer relacionada, e `exists_complex`/`not_exists_complex` se há uma que bate com uma árvore (os mesmos filtros que `where_complex`/`none_complex`). Os callbacks recebem o `Where` do model relacionado, então se aninham, e funcionam em todo builder que aceita `where_`. Veja [Filtros de relação](/pt-br/docs/orm/orm/relation-filters).
+Fields de relação filtram pelas rows relacionadas sem carregá-las, com uma subquery `EXISTS` correlacionada: `where_`/`where_complex` mantêm rows com alguma relacionada compatível, `none`/`none_complex` rows sem nenhuma, `every`/`every_complex` rows cujas relacionadas batem todas, `exists`/`not_exists` testam se há qualquer relacionada (`not_empty`/`empty` nas relações de lista), e `exists_complex`/`not_exists_complex` se há uma que bate com uma árvore (os mesmos filtros que `where_complex`/`none_complex`). Os callbacks recebem o `Where` do model relacionado, então se aninham, e funcionam em todo builder que aceita `where_`. Veja [Filtros de relação](/pt-br/docs/orm/orm/relation-filters).
 
 ## Methods de agregação
 
