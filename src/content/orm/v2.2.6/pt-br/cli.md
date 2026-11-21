@@ -95,6 +95,8 @@ A saída começa pelo **Target**: o workspace (quando existe), o banco, sua loca
 
 Num terminal, a pergunta de aprovação oferece seguir em frente, mostrar o SQL da migration antes, ou cancelar. Quando o plano tem mudanças destrutivas, a pergunta começa em **Cancel**, então apertar Enter sozinho nunca aprova perda de dados.
 
+Depois que a migration é aplicada, mesmo quando o schema não teve mudanças, uma seção **Watch** lista o que mudou na [configuração de watch](/pt-br/docs/orm/orm/watch#o-que-a-cli-configura) do banco para os models que declaram `@@with_watch_changes`.
+
 ### Opções
 
 | Opção | Efeito |
@@ -145,6 +147,8 @@ Aplica cada `up.sql` pendente em ordem de diretório e registra cada um em `dino
 
 Use `--workspace nome`/`-w nome` para aplicar as migrations pendentes de um workspace.
 
+Como o `migrate generate`, ele depois alinha a [configuração de watch](/pt-br/docs/orm/orm/watch#o-que-a-cli-configura) do banco com os models que declaram `@@with_watch_changes`: publications, replica identity e o usuário de replicação, criados ou removidos conforme o atributo foi adicionado ou removido. Ela nunca vai para os arquivos de migration, já que a senha do usuário de replicação vem do ambiente.
+
 ## dinoco models generate
 
 ```bash
@@ -163,6 +167,25 @@ dinoco seed --workspace production
 ```
 
 Roda a função `seed` do `dinoco/seed.rs` (ou `dinoco/seed/mod.rs`) no banco do workspace, escolhido e mostrado na seção **Target** do mesmo jeito que no `migrate run`. Ele falha com exit code `2`, antes de conectar ou compilar qualquer coisa, quando não existe seed, quando os dois layouts existem ou quando o `dinoco/mod.rs` ainda não declara a seed (rode `dinoco models generate` uma vez depois de criá-la); um erro ou panic na seed faz ele falhar com exit code `1`. Veja [Seeds](/pt-br/docs/orm/tooling/seeds).
+
+## dinoco db reset
+
+```bash
+dinoco db reset
+dinoco db reset --workspace dev
+```
+
+Apaga todas as tabelas do banco, inclusive o histórico de migrations do Dinoco, com todas as suas rows, e todos os tipos enum (o PostgreSQL guarda enums como tipos próprios; MySQL e SQLite os guardam nas colunas). No PostgreSQL ele também remove as publications de [watch](/pt-br/docs/orm/orm/watch), que sobreviveriam às tabelas. Rode `dinoco migrate run` depois para criar o schema de novo a partir das migrations.
+
+O comando mostra o **Target** e lista tudo o que vai remover, depois pergunta duas vezes:
+
+1. Uma pergunta de sim/não, `não` por padrão.
+2. Um código de confirmação aleatório de 8 dígitos, mostrado logo acima do prompt, que você digita de volta.
+
+Um `não`, um código errado ou `Esc` cancela com exit code `130` sem mudar nada. As duas respostas são sempre pedidas num terminal: sem um (`--non-interactive`, `CI` ou sem TTY) o comando falha com exit code `2` depois de listar o que removeria, e nenhuma opção ou variável de ambiente pula as confirmações. Um banco sem tabelas nem enums fica como está, sem perguntar. Quando o schema define workspaces, ele pergunta qual resetar, ou recebe `--workspace nome`/`-w nome`.
+
+> [!DANGER]
+> Um reset não pode ser desfeito. Confira o **Target** antes de digitar o código: ele mostra o banco e o workspace que vão ser esvaziados.
 
 ## Workspaces
 

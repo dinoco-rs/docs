@@ -90,6 +90,7 @@ Enquanto um atributo de field descreve uma coluna, um atributo de model descreve
 | `@@indexes([tenant_id, created_at])` | Índice comum composto |
 | `@@fulltexts([title, body])` | Índice full-text composto sobre vários fields |
 | `@@table_name("audit_users")` | Sobrescreve o nome físico gerado da tabela |
+| `@@with_watch_changes` | Permite que o [`dinoco::watch`](/pt-br/docs/orm/orm/watch) transmita as mudanças do model a partir do log do banco |
 
 Nomes de tabela e coluna podem ser palavras-chave do SQL, como um model `User` (tabela `user`), um model `Order`, ou fields chamados `key`, `desc`, `end` ou `values`. O Dinoco coloca o nome entre aspas em toda query e migration sempre que o PostgreSQL, o MySQL ou o SQLite o reserva, então o mesmo schema funciona nos três.
 

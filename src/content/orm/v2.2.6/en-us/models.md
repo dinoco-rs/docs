@@ -90,6 +90,7 @@ Where field attributes describe one column, model attributes describe an ordered
 | `@@indexes([tenant_id, created_at])` | Composite standard index |
 | `@@fulltexts([title, body])` | Composite full-text index across several fields |
 | `@@table_name("audit_users")` | Overrides the generated physical table name |
+| `@@with_watch_changes` | Lets [`dinoco::watch`](/en-us/docs/orm/orm/watch) stream the model's changes from the database log |
 
 Table and column names may be SQL keywords, such as a `User` model (table `user`), an `Order` model, or fields named `key`, `desc`, `end` or `values`. Dinoco quotes a name in every query and migration whenever PostgreSQL, MySQL or SQLite reserves it, so the same schema works on all three.
 

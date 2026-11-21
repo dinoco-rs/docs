@@ -10,6 +10,7 @@ config {
     connection        = "direct"     # direct | pgbouncer (só PostgreSQL)
     database_url      = env("DATABASE_URL")
     read_replicas     = [env("DATABASE_REPLICA_URL")]
+    replication_url   = env("REPLICATION_DATABASE_URL")
     snowflake_node_id = env("SNOWFLAKE_NODE_ID")
 }
 
@@ -28,7 +29,7 @@ model User {
 
 **Atributos de field:** `@id`, `@unique`, `@unique<condição>`, `@index`, `@index<condição>`, `@index(map: "...")`, `@fulltext`, `@default(...)`, `@updated_at` (com `@default(now())`), `@relation(...)`.
 
-**Atributos de model:** `@@ids([...])`, `@@uniques([...])`, `@@uniques<condição>([...])`, `@@indexes([...])`, `@@indexes<condição>([...])`, `@@fulltexts([...])`, `@@table_name("...")`. Todo model exige exatamente uma declaração de primary key — um `@id` ou um `@@ids`, nunca os dois. Arrays compostos preservam a ordem de field declarada. Uma condição como `<deleted_at == null && slug != "_">` cria um [índice parcial](/pt-br/docs/orm/guide/indexes#indices-parciais). Veja [Índices e constraints](/pt-br/docs/orm/guide/indexes).
+**Atributos de model:** `@@ids([...])`, `@@uniques([...])`, `@@uniques<condição>([...])`, `@@indexes([...])`, `@@indexes<condição>([...])`, `@@fulltexts([...])`, `@@table_name("...")`, `@@with_watch_changes`. Todo model exige exatamente uma declaração de primary key — um `@id` ou um `@@ids`, nunca os dois. Arrays compostos preservam a ordem de field declarada. Uma condição como `<deleted_at == null && slug != "_">` cria um [índice parcial](/pt-br/docs/orm/guide/indexes#indices-parciais). Veja [Índices e constraints](/pt-br/docs/orm/guide/indexes).
 
 Toda primary key e foreign key ganha um índice comum automático; a própria constraint da primary key fornece seu índice sem um `CREATE INDEX` redundante. Um field full-text precisa ser `String`/`String?`, e um field nunca pode pertencer ao mesmo tempo a uma declaração comum e uma full-text.
 
@@ -121,6 +122,10 @@ Para endpoints que já existem, use `.connect(value)`/`.disconnect(value)` a par
 ## Transactions
 
 `transaction(&client, |tx| async move { ... }).await` abre uma transaction nativa presa a uma única conexão física com a primary. Rode toda mutation e leitura dentro dela com `.execute(tx)`. Um `Ok(value)` retornado pela closure faz commit e produz esse valor; qualquer erro desfaz tudo. `TransactionError` diferencia falhas de create, update, delete, atomic update, commit e rollback, mantendo o erro original do driver acessível por baixo. `transaction_with_error::<E, _>(&client, |tx| async move { ... })` funciona do mesmo jeito com um tipo de erro customizado: a closure retorna `Result<T, TransactionError<E>>`, e `Err(TransactionError::Custom(error))` faz rollback e chega tipado em quem chamou. Veja [Transactions](/pt-br/docs/orm/orm/transactions) e [Erros customizados](/pt-br/docs/orm/orm/transactions#erros-customizados).
+
+## Observar mudanças
+
+`watch::<M>()` transmite as mudanças de um model que declara `@@with_watch_changes`, lidas do WAL do PostgreSQL ou do binlog do MySQL. `.filter(|row| ...)` mantém as mudanças cuja linha passa, antes ou depois de um update; `.on_event(|event| ...)` recebe um handler sync ou async que retorna `()` ou um `Result`; `.observer(&client).await` conecta e roda até a conexão falhar ou o handler dar erro, retornando `Result<(), WatchError>`. Os eventos são `WatchEvent::Created(M)`, `WatchEvent::Updated { before, after }` e `WatchEvent::Deleted(M)`, na ordem dos commits. `WatchError` é `Unsupported`, `NotConfigured { table, reason }`, `Decode { table }`, `Database(DatabaseError)` ou `Handler(anyhow::Error)`. `DinocoClient::with_replication_url(url)` define a URL com que os watches conectam. Veja [Watch changes](/pt-br/docs/orm/orm/watch).
 
 ## Methods de filtro
 

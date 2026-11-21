@@ -1,6 +1,13 @@
-# Dinoco v2.2.5
+# Dinoco v2.2.6
 
 Esta página acompanha o que mudou release a release. Cada item linka para a página que documenta a funcionalidade em profundidade — trate isto como um changelog, não como a referência principal.
+
+## v2.2.6
+
+- **Watch changes.** `watch::<Account>().filter(|a| a.active).on_event(|event| ...).observer(&client)` transmite os inserts, updates e deletes de um model como `WatchEvent::Created`, `Updated { before, after }` e `Deleted`, lidos do WAL do PostgreSQL (logical replication) ou do binlog do MySQL, então mudanças feitas fora do Dinoco também chegam. Os eventos vêm na ordem dos commits com todos os fields decodificados, transactions com rollback nunca chegam, um filtro entrega um update quando a linha passa antes ou depois dele, e os handlers podem ser async e retornar um `Result` que para o watch. Os models optam com `@@with_watch_changes`, e o bloco de config nomeia o usuário de replicação com `replication_url = env("...")`. O future do watch tem 24 bytes; o stream roda num box. O SQLite não é suportado. Veja [Watch changes](/pt-br/docs/orm/orm/watch).
+- **A CLI configura os watches.** `migrate generate` e `migrate run` criam o usuário de replicação a partir de `replication_url` e, no PostgreSQL, uma publication por tabela observada com `REPLICA IDENTITY FULL`. Remover `@@with_watch_changes` de um model remove a configuração dele, e removê-lo de todos os models remove o usuário de replicação. Nada disso vai para os arquivos de migration. Veja [O que a CLI configura](/pt-br/docs/orm/orm/watch#o-que-a-cli-configura).
+- **`dinoco db reset`.** Remove todas as tabelas e enums do banco de um workspace depois de duas confirmações: uma pergunta de sim/não e depois um código aleatório de 8 dígitos digitado de volta. Ele nunca roda sem um terminal. Veja [dinoco db reset](/pt-br/docs/orm/tooling/cli#dinoco-db-reset).
+- Atualizando: nada muda para código existente. O `dinoco` tem uma nova feature padrão, `watch`; compilar sem as features padrão a deixa de fora, junto com o suporte ao binlog do MySQL que ela compila.
 
 ## v2.2.5
 

@@ -20,6 +20,7 @@ config {
 - `connection` — only meaningful for PostgreSQL; `"direct"` or `"pgbouncer"`. Defaults to `"direct"` when omitted.
 - `database_url` — always `env("NAME")`, never a literal string. See [Environment variables](#environment-variables) below.
 - `read_replicas` — an optional array of `env("NAME")` entries. See [Read replicas](#read-replicas).
+- `replication_url` — the URL `dinoco::watch` connects with, as the replication user the CLI creates; required when a model declares `@@with_watch_changes`. See [Replication URL](#replication-url).
 
 > [!NOTE]
 > Some keys were removed from `config`, and a schema that still declares one fails to compile with a pointer to what replaces it: `custom_derives` (use [code transforms](/en-us/docs/orm/guide/transforms) to add derives, attributes, imports, or methods to generated code), `migration_engine` (migrations are always generated from `schema.dinoco`; see [Migrations](/en-us/docs/orm/tooling/migrations)), and `query_mode` (removed along with `find_batch(...)`).
@@ -128,7 +129,7 @@ In a terminal you don't need the option: with more than one workspace, `migrate 
 
 ## Environment variables
 
-`database_url`, every entry of `read_replicas`, and `snowflake_node_id` accept **only** `env("NAME")` — a literal string in any of these positions is a compile error, not a warning. This isn't just a style preference: it's what keeps a schema safe to commit to version control.
+`database_url`, every entry of `read_replicas`, `replication_url`, and `snowflake_node_id` accept **only** `env("NAME")` — a literal string in any of these positions is a compile error, not a warning. This isn't just a style preference: it's what keeps a schema safe to commit to version control.
 
 ```bash
 export DATABASE_URL="postgres://postgres:postgres@localhost:5432/app"
@@ -226,6 +227,20 @@ The generated `connect()` resolves and constructs an adapter for every replica t
 
 > [!NOTE]
 > CLI migration commands never use replicas. `migrate generate` and `migrate run` connect only to the active workspace's primary `database_url`; replicas are expected to catch up on their own through the database's own replication mechanism.
+
+## Replication URL
+
+A schema whose models declare `@@with_watch_changes` must also say which user [watches](/en-us/docs/orm/orm/watch) connect as, in every PostgreSQL and MySQL workspace:
+
+```dinoco
+config {
+    database        = "postgresql"
+    database_url    = env("DATABASE_URL")
+    replication_url = env("REPLICATION_DATABASE_URL")
+}
+```
+
+`migrate generate` and `migrate run` create that user from the URL's name and password, with replication privileges and read access to the watched tables, and drop it once no model watches any more. The generated `connect()` reads the variable when it is set, so watches connect with it, while the client's queries keep using `database_url`. It must reach the database directly: PgBouncer can't carry replication connections. SQLite has no `replication_url`. See [What the CLI sets up](/en-us/docs/orm/orm/watch#what-the-cli-sets-up).
 
 ## Snowflake IDs
 

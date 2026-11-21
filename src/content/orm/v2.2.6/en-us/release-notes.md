@@ -1,6 +1,13 @@
-# Dinoco v2.2.5
+# Dinoco v2.2.6
 
 This page tracks what changed release over release. Each entry links to the page that documents the feature in depth — treat this as a changelog, not the primary reference.
+
+## v2.2.6
+
+- **Watch changes.** `watch::<Account>().filter(|a| a.active).on_event(|event| ...).observer(&client)` streams a model's inserts, updates, and deletes as `WatchEvent::Created`, `Updated { before, after }`, and `Deleted`, read from the PostgreSQL WAL (logical replication) or the MySQL binlog, so changes made outside Dinoco arrive too. Events come in commit order with every field decoded, rolled-back transactions never arrive, a filter delivers an update when the row passes before or after it, and handlers may be async and return a `Result` that stops the watch. Models opt in with `@@with_watch_changes`, and the config block names the replication user with `replication_url = env("...")`. The watch future is 24 bytes; the stream runs boxed. SQLite isn't supported. See [Watch changes](/en-us/docs/orm/orm/watch).
+- **The CLI sets watches up.** `migrate generate` and `migrate run` create the replication user from `replication_url`, and on PostgreSQL one publication per watched table with `REPLICA IDENTITY FULL`. Removing `@@with_watch_changes` from a model removes its setup, and removing it from every model drops the replication user. None of it goes into migration files. See [What the CLI sets up](/en-us/docs/orm/orm/watch#what-the-cli-sets-up).
+- **`dinoco db reset`.** Drops every table and enum of a workspace's database after two confirmations: a yes/no question, then a random 8-digit code typed back. It never runs without a terminal. See [dinoco db reset](/en-us/docs/orm/tooling/cli#dinoco-db-reset).
+- Upgrading: nothing changes for existing code. `dinoco` has a new default feature, `watch`; building without default features leaves it out, along with the MySQL binlog support it compiles in.
 
 ## v2.2.5
 
